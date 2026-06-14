@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlserver"
+    url      = env("DATABASE_URL")
+}
+
+model ActionTypes {
+  ActionTypeId   Int              @id(map: "PK__ActionTy__62FE4C644098BC0E") @default(autoincrement())
+  ActionName     String           @unique(map: "UQ__ActionTy__491F5DD0784AC279") @db.NVarChar(100)
+  RequestActions RequestActions[]
+}
+
+model Contracts {
+  ContractId                      Int              @id(map: "PK__Contract__C90D3469E267207E") @default(autoincrement())
+  ContractTypeId                  Int
+  ClientId                        Int
+  RequestId                       Int?
+  AgentId                         Int?
+  WitnessName                     String?          @db.NVarChar(200)
+  Content                         String           @db.NVarChar(Max)
+  SignedDate                      DateTime?
+  IsAccepted                      Boolean          @default(false, map: "DF__Contracts__IsAcc__778AC167")
+  CreatedAt                       DateTime         @default(dbgenerated("sysutcdatetime()"), map: "DF__Contracts__Creat__787EE5A0")
+  Users_Contracts_AgentIdToUsers  Users?           @relation("Contracts_AgentIdToUsers", fields: [AgentId], references: [UserId], onDelete: NoAction, onUpdate: NoAction, map: "FK_Contracts_Agent")
+  Users_Contracts_ClientIdToUsers Users            @relation("Contracts_ClientIdToUsers", fields: [ClientId], references: [UserId], onUpdate: NoAction, map: "FK_Contracts_Client")
+  ServiceRequests                 ServiceRequests? @relation(fields: [RequestId], references: [RequestId], onDelete: NoAction, onUpdate: NoAction, map: "FK_Contracts_Request")
+  ContractTypes                   ContractTypes    @relation(fields: [ContractTypeId], references: [ContractTypeId], onUpdate: NoAction, map: "FK_Contracts_Type")
+}
+
+model ContractTypes {
+  ContractTypeId Int         @id(map: "PK__Contract__68A615658136DE72") @default(autoincrement())
+  TypeName       String      @unique(map: "UQ__Contract__D4E7DFA846CB05B5") @db.NVarChar(100)
+  Contracts      Contracts[]
+}
+
+model Documents {
+  DocumentId      Int              @id(map: "PK__Document__1ABEEF0F6AD174BC") @default(autoincrement())
+  RequestId       Int?
+  DocumentTypeId  Int
+  Title           String           @db.NVarChar(255)
+  FilePath        String?          @db.NVarChar(500)
+  CreatedBy       Int
+  CreatedByAI     Boolean          @default(false, map: "DF__Documents__Creat__6A30C649")
+  CreatedAt       DateTime         @default(dbgenerated("sysutcdatetime()"), map: "DF__Documents__Creat__6B24EA82")
+  Users           Users            @relation(fields: [CreatedBy], references: [UserId], onUpdate: NoAction, map: "FK_Docs_CreatedBy")
+  ServiceRequests ServiceRequests? @relation(fields: [RequestId], references: [RequestId], onDelete: NoAction, onUpdate: NoAction, map: "FK_Docs_Request")
+  DocumentTypes   DocumentTypes    @relation(fields: [DocumentTypeId], references: [DocumentTypeId], onUpdate: NoAction, map: "FK_Docs_Type")
+  RequestActions  RequestActions[]
+}
+
+model DocumentTypes {
+  DocumentTypeId Int         @id(map: "PK__Document__DBA390E1FFAEED96") @default(autoincrement())
+  TypeName       String      @unique(map: "UQ__Document__D4E7DFA81012D9F2") @db.NVarChar(100)
+  Documents      Documents[]
+}
+
+model Messages {
+  MessageId       Int             @id(map: "PK__Messages__C87C0C9CB7DEB566") @default(autoincrement())
+  RequestId       Int
+  SenderId        Int
+  Content         String          @db.NVarChar(Max)
+  SentAt          DateTime        @default(dbgenerated("sysutcdatetime()"), map: "DF__Messages__SentAt__7F2BE32F")
+  ServiceRequests ServiceRequests @relation(fields: [RequestId], references: [RequestId], onUpdate: NoAction, map: "FK_Messages_Request")
+  Users           Users           @relation(fields: [SenderId], references: [UserId], onUpdate: NoAction, map: "FK_Messages_Sender")
+}
+
+model Notifications {
+  NotificationId  Int              @id(map: "PK__Notifica__20CF2E12553A1C11") @default(autoincrement())
+  RecipientId     Int
+  RequestId       Int?
+  Type            String           @db.NVarChar(50)
+  Message         String           @db.NVarChar(500)
+  IsRead          Boolean          @default(false, map: "DF__Notificat__IsRea__03F0984C")
+  CreatedAt       DateTime         @default(dbgenerated("sysutcdatetime()"), map: "DF__Notificat__Creat__04E4BC85")
+  Users           Users            @relation(fields: [RecipientId], references: [UserId], onUpdate: NoAction, map: "FK_Notif_Recipient")
+  ServiceRequests ServiceRequests? @relation(fields: [RequestId], references: [RequestId], onDelete: NoAction, onUpdate: NoAction, map: "FK_Notif_Request")
+}
+
+model Packages {
+  PackageId       Int               @id(map: "PK__Packages__322035CC0A42B3B2") @default(autoincrement())
+  ClientId        Int
+  PackageName     String            @db.NVarChar(200)
+  Description     String?           @db.NVarChar(Max)
+  CreatedAt       DateTime          @default(dbgenerated("sysutcdatetime()"), map: "DF__Packages__Create__4E88ABD4")
+  Users           Users             @relation(fields: [ClientId], references: [UserId], onUpdate: NoAction, map: "FK_Packages_Client")
+  ServiceRequests ServiceRequests[]
+}
+
+model RequestActions {
+  ActionId        Int             @id(map: "PK__RequestA__FFE3F4D9B42EDF84") @default(autoincrement())
+  RequestId       Int
+  DocumentId      Int
+  ActionTypeId    Int
+  ClientId        Int
+  Note            String?         @db.NVarChar(Max)
+  CreatedAt       DateTime        @default(dbgenerated("sysutcdatetime()"), map: "DF__RequestAc__Creat__70DDC3D8")
+  Users           Users           @relation(fields: [ClientId], references: [UserId], onUpdate: NoAction, map: "FK_Actions_Client")
+  Documents       Documents       @relation(fields: [DocumentId], references: [DocumentId], onUpdate: NoAction, map: "FK_Actions_Document")
+  ServiceRequests ServiceRequests @relation(fields: [RequestId], references: [RequestId], onUpdate: NoAction, map: "FK_Actions_Request")
+  ActionTypes     ActionTypes     @relation(fields: [ActionTypeId], references: [ActionTypeId], onUpdate: NoAction, map: "FK_Actions_Type")
+}
+
+model RequestNotes {
+  NoteId          Int             @id(map: "PK__RequestN__EACE355FF89A1B80") @default(autoincrement())
+  RequestId       Int
+  StepId          Int?
+  AuthorId        Int
+  Content         String          @db.NVarChar(Max)
+  CreatedAt       DateTime        @default(dbgenerated("sysutcdatetime()"), map: "DF__RequestNo__Creat__5DCAEF64")
+  Users           Users           @relation(fields: [AuthorId], references: [UserId], onUpdate: NoAction, map: "FK_Notes_Author")
+  ServiceRequests ServiceRequests @relation(fields: [RequestId], references: [RequestId], onUpdate: NoAction, map: "FK_Notes_Request")
+  RequestSteps    RequestSteps?   @relation(fields: [StepId], references: [StepId], onDelete: NoAction, onUpdate: NoAction, map: "FK_Notes_Step")
+}
+
+model RequestShares {
+  ShareId                               Int             @id(map: "PK__RequestS__D32A3FEEA8289C4F") @default(autoincrement())
+  RequestId                             Int
+  UserId                                Int
+  SharedById                            Int
+  SharedAt                              DateTime        @default(dbgenerated("sysutcdatetime()"), map: "DF__RequestSh__Share__6477ECF3")
+  ServiceRequests                       ServiceRequests @relation(fields: [RequestId], references: [RequestId], onUpdate: NoAction, map: "FK_Shares_Request")
+  Users_RequestShares_SharedByIdToUsers Users           @relation("RequestShares_SharedByIdToUsers", fields: [SharedById], references: [UserId], onUpdate: NoAction, map: "FK_Shares_SharedBy")
+  Users_RequestShares_UserIdToUsers     Users           @relation("RequestShares_UserIdToUsers", fields: [UserId], references: [UserId], onUpdate: NoAction, map: "FK_Shares_User")
+
+  @@unique([RequestId, UserId], map: "UQ_Shares_Unique")
+}
+
+model RequestStatuses {
+  StatusId        Int               @id(map: "PK__RequestS__C8EE2063AF3CA9D2") @default(autoincrement())
+  StatusName      String            @unique(map: "UQ__RequestS__05E7698AB4CC8221") @db.NVarChar(50)
+  ServiceRequests ServiceRequests[]
+}
+
+model RequestSteps {
+  StepId          Int             @id(map: "PK__RequestS__2434335744F6F1E9") @default(autoincrement())
+  RequestId       Int
+  StepName        String          @db.NVarChar(200)
+  IsCompleted     Boolean         @default(false, map: "DF__RequestSt__IsCom__59FA5E80")
+  StepOrder       Int
+  RequestNotes    RequestNotes[]
+  ServiceRequests ServiceRequests @relation(fields: [RequestId], references: [RequestId], onUpdate: NoAction, map: "FK_Steps_Request")
+}
+
+model Roles {
+  RoleId   Int     @id(map: "PK__Roles__8AFACE1A21C52649") @default(autoincrement())
+  RoleName String  @unique(map: "UQ__Roles__8A2B616026D830BE") @db.NVarChar(50)
+  Users    Users[]
+}
+
+model ServiceRequests {
+  RequestId       Int              @id(map: "PK__ServiceR__33A8517AE60A7970") @default(autoincrement())
+  RequestCode     String           @unique(map: "UQ__ServiceR__CBAB82F6D2F2230A") @db.NVarChar(50)
+  ClientId        Int
+  ServiceTypeId   Int
+  StatusId        Int
+  PackageId       Int?
+  Title           String           @db.NVarChar(255)
+  Description     String?          @db.NVarChar(Max)
+  Cost            Decimal?         @db.Decimal(12, 2)
+  CreatedAt       DateTime         @default(dbgenerated("sysutcdatetime()"), map: "DF__ServiceRe__Creat__534D60F1")
+  LastModifiedAt  DateTime?
+  Contracts       Contracts[]
+  Documents       Documents[]
+  Messages        Messages[]
+  Notifications   Notifications[]
+  RequestActions  RequestActions[]
+  RequestNotes    RequestNotes[]
+  RequestShares   RequestShares[]
+  RequestSteps    RequestSteps[]
+  Users           Users            @relation(fields: [ClientId], references: [UserId], onUpdate: NoAction, map: "FK_Requests_Client")
+  Packages        Packages?        @relation(fields: [PackageId], references: [PackageId], onDelete: NoAction, onUpdate: NoAction, map: "FK_Requests_Package")
+  ServiceTypes    ServiceTypes     @relation(fields: [ServiceTypeId], references: [ServiceTypeId], onUpdate: NoAction, map: "FK_Requests_ServiceType")
+  RequestStatuses RequestStatuses  @relation(fields: [StatusId], references: [StatusId], onUpdate: NoAction, map: "FK_Requests_Status")
+}
+
+model ServiceTypes {
+  ServiceTypeId   Int               @id(map: "PK__ServiceT__8ADFAA6CE2002464") @default(autoincrement())
+  TypeName        String            @unique(map: "UQ__ServiceT__D4E7DFA84520E749") @db.NVarChar(100)
+  ServiceRequests ServiceRequests[]
+}
+
+model Users {
+  UserId                                        Int               @id(map: "PK__Users__1788CC4C6F011F7E") @default(autoincrement())
+  FirstName                                     String            @db.NVarChar(100)
+  LastName                                      String            @db.NVarChar(100)
+  Email                                         String            @unique(map: "UQ__Users__A9D10534AA21AB7F") @db.NVarChar(255)
+  PasswordHash                                  String            @db.NVarChar(255)
+  Phone                                         String?           @db.NVarChar(30)
+  RoleId                                        Int
+  CreatedById                                   Int?
+  CreatedAt                                     DateTime          @default(dbgenerated("sysutcdatetime()"), map: "DF__Users__CreatedAt__49C3F6B7")
+  Contracts_Contracts_AgentIdToUsers            Contracts[]       @relation("Contracts_AgentIdToUsers")
+  Contracts_Contracts_ClientIdToUsers           Contracts[]       @relation("Contracts_ClientIdToUsers")
+  Documents                                     Documents[]
+  Messages                                      Messages[]
+  Notifications                                 Notifications[]
+  Packages                                      Packages[]
+  RequestActions                                RequestActions[]
+  RequestNotes                                  RequestNotes[]
+  RequestShares_RequestShares_SharedByIdToUsers RequestShares[]   @relation("RequestShares_SharedByIdToUsers")
+  RequestShares_RequestShares_UserIdToUsers     RequestShares[]   @relation("RequestShares_UserIdToUsers")
+  ServiceRequests                               ServiceRequests[]
+  Users                                         Users?            @relation("UsersToUsers", fields: [CreatedById], references: [UserId], onDelete: NoAction, onUpdate: NoAction, map: "FK_Users_CreatedBy")
+  other_Users                                   Users[]           @relation("UsersToUsers")
+  Roles                                         Roles             @relation(fields: [RoleId], references: [RoleId], onUpdate: NoAction, map: "FK_Users_Roles")
+}
