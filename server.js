@@ -5,6 +5,7 @@ const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const authMiddleware = require('./authMiddleware');
 
 // ─── Setup ──────────────────────────────────────────────
 const app = express();
@@ -97,6 +98,21 @@ app.post('/api/login', async (req, res) => {
       token,
       user: { id: user.UserId, email: user.Email, firstName: user.FirstName }
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+// ─── Protected route example (requires valid JWT) ───────
+app.get('/api/me', authMiddleware, async (req, res) => {
+  try {
+    // The middleware attached the user info to req.user
+    const user = await prisma.users.findUnique({
+      where: { UserId: req.user.userId },
+      select: { UserId: true, FirstName: true, LastName: true, Email: true, RoleId: true }
+    });
+    res.json({ message: 'Profil récupéré avec succès', user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
