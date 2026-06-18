@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const prisma = require('./src/config/prisma');
 const authRoutes = require('./src/routes/authRoutes');
+const requestRoutes = require('./src/routes/requestRoutes');
 
 // ─── Setup ──────────────────────────────────────────────
 const app = express();
@@ -30,6 +31,9 @@ app.get('/api/test', async (req, res) => {
 
 // Authentication routes (register, login, me)
 app.use('/api', authRoutes);
+
+// Service request routes (create, list, service types)
+app.use('/api', requestRoutes);
 
 // ─── Start the server ───────────────────────────────────
 app.listen(PORT, () => {

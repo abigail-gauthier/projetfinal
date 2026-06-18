@@ -2,6 +2,7 @@ import { useState } from 'react';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import NewRequestPage from './pages/NewRequestPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState(() => {
@@ -20,7 +21,21 @@ function App() {
   }
 
   if (currentPage === 'dashboard') {
-    return <DashboardPage onLogout={handleLogout} />;
+    return (
+      <DashboardPage
+        onLogout={handleLogout}
+        onNewRequest={() => setCurrentPage('new-request')}
+      />
+    );
+  }
+
+if (currentPage === 'new-request') {
+    return (
+      <NewRequestPage
+        onBackToDashboard={() => setCurrentPage('dashboard')}
+        onLogout={handleLogout}
+      />
+    );
   }
 
   if (currentPage === 'register') {

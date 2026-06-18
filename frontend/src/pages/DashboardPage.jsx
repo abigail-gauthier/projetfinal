@@ -1,11 +1,41 @@
+import { useState, useEffect } from 'react';
+import { getMyRequests } from '../services/requestService';
 import './DashboardPage.css';
 
-function DashboardPage({ onLogout }) {
+function DashboardPage({ onLogout, onNewRequest }) {
   // Get the stored user info from localStorage
   const userJson = localStorage.getItem('lexy_user');
   const user = userJson ? JSON.parse(userJson) : null;
   const firstName = user?.firstName || 'invité';
   const initial = firstName.charAt(0).toUpperCase();
+
+  const token = localStorage.getItem('lexy_token');
+  const [requests, setRequests] = useState([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [requestsError, setRequestsError] = useState('');
+
+  useEffect(() => {
+    async function loadRequests() {
+      try {
+        const data = await getMyRequests(token);
+        setRequests(data.requests);
+      } catch (err) {
+        setRequestsError(err.message);
+      } finally {
+        setLoadingRequests(false);
+      }
+    }
+    loadRequests();
+  }, [token]);
+
+  function formatDate(value) {
+    if (!value) return '';
+    return new Date(value).toLocaleDateString('fr-CA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
 
   return (
     <div className="dashboard">
@@ -67,7 +97,7 @@ function DashboardPage({ onLogout }) {
                 Soumettez une demande et votre agent dédié s'en occupe — voyage,
                 réservation, recherche, et plus.
               </p>
-              <button className="hero-btn">+  Nouvelle demande</button>
+              <button className="hero-btn" onClick={onNewRequest}>+  Nouvelle demande</button>
             </div>
           </section>
 
@@ -93,6 +123,39 @@ function DashboardPage({ onLogout }) {
               <div className="stat-value">0 $</div>
               <div className="stat-sub">grâce à nos négociations</div>
             </div>
+          </section>
+
+          {/* Recent requests */}
+          <section className="requests-section">
+            <h2 className="requests-heading">Mes demandes récentes</h2>
+
+            {requestsError && <div className="requests-error">{requestsError}</div>}
+
+            {!requestsError && loadingRequests && (
+              <p className="requests-empty">Chargement de vos demandes...</p>
+            )}
+
+            {!requestsError && !loadingRequests && requests.length === 0 && (
+              <p className="requests-empty">Vous n'avez aucune demande pour le moment.</p>
+            )}
+
+            {!requestsError && !loadingRequests && requests.length > 0 && (
+              <div className="requests-list">
+               {requests.map((request) => (
+  <div className="request-item" key={request.RequestId}>
+    <div className="request-item-main">
+      <div className="request-item-title-row">
+        <div className="request-item-title">{request.Title}</div>
+        <span className="request-item-status">
+          {request.RequestStatuses?.StatusName}
+        </span>
+      </div>
+      <div className="request-item-date">{formatDate(request.CreatedAt)}</div>
+    </div>
+  </div>
+))}
+              </div>
+            )}
           </section>
 
         </main>
