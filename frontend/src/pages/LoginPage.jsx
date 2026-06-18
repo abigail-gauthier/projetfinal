@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { loginUser } from '../services/authService';
 import './LoginPage.css';
 
-function LoginPage({ onSwitchToRegister }) {
+function LoginPage({ onSwitchToRegister, onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -21,8 +21,8 @@ function LoginPage({ onSwitchToRegister }) {
       localStorage.setItem('lexy_user', JSON.stringify(data.user));
 
       // For now, show success in the console
-      console.log('Connexion réussie !', data);
-      alert(`Bienvenue, ${data.user.firstName} !`);
+     // Redirect to the dashboard
+      onLoginSuccess();
     } catch (err) {
       setError(err.message);
     } finally {
