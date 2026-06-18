@@ -1,3 +1,9 @@
+
+\# LAST UPDATE: 2026-06-18
+
+Le JWT token fonctionne correctement.
+
+
 \# Lexy Executive Service
 
 Plateforme web de gestion de services de conciergerie. Les clients peuvent soumettre des demandes (voyages, réservations, recherches, tâches administratives, etc.), suivre leur progression et consulter les livrables. L'administrateur traite les demandes, téléverse les livrables et gère les utilisateurs.
@@ -48,3 +54,37 @@ Le modèle compte 17 tables : 6 tables de référence, 10 tables de données et 
 \## Auteur
 
 Abigail Gauthier — Projet de fin d'études encadré par Raoul Elouga.
+
+
+
+🧪 Verification commands
+1. Start the server
+node server.js
+Should see 🚀 Server running at http://localhost:3000.
+2. Verify the API is alive
+Open browser → http://localhost:3000
+
+Expected: {"message":"LexY Executive Service API is running!"}
+3. Verify the database connection
+Open browser → http://localhost:3000/api/test
+
+Expected: A list of Roles (Client, Admin).
+4. Verify registration works
+powershellcurl -Method POST http://localhost:3000/api/register -ContentType "application/json" -Body '{"firstName":"Test","lastName":"User","email":"test@example.com","password":"Test123!"}'
+Expected: 201 Created with user info.
+5. Verify login works (and get a token)
+powershellcurl -Method POST http://localhost:3000/api/login -ContentType "application/json" -Body '{"email":"marc@example.com","password":"MotDePasse123!"}'
+Expected: 200 OK with a token value.
+6. Verify JWT middleware blocks anonymous access
+powershellcurl http://localhost:3000/api/me
+Expected: 401 with "Token manquant ou invalide."
+7. Verify JWT middleware allows authenticated access
+Take the token from step 5 and run:
+powershellcurl http://localhost:3000/api/me -Headers @{"Authorization"="Bearer PASTE_TOKEN_HERE"}
+Expected: 200 with Marc's profile.
+Common issues
+
+"Can't reach database server" → SQL Server service isn't running. Open services.msc and start "SQL Server (SQLEXPRESS)".
+TcpTestSucceeded: False → TCP/IP settings got reset. Open SQLServerManager16.msc → enable TCP/IP, set port 1433, restart service.
+"Database does not exist" → connected to the wrong database. In SSMS, change the dropdown to LexyExecutiveService.
+
