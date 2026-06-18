@@ -1,18 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('login');
+  const [currentPage, setCurrentPage] = useState(() => {
+  return localStorage.getItem('lexy_token') ? 'dashboard' : 'login';
+});
 
-  // On app load: if a token already exists, go straight to the dashboard
-  useEffect(() => {
-    const token = localStorage.getItem('lexy_token');
-    if (token) {
-      setCurrentPage('dashboard');
-    }
-  }, []);
 
   function handleLogout() {
     localStorage.removeItem('lexy_token');
