@@ -1,0 +1,322 @@
+/* ═══════════════════════════════════════════════════════
+   DASHBOARD — overall layout
+   ═══════════════════════════════════════════════════════ */
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  background: #F4F5F7;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SIDEBAR — same luxurious gradient as login background
+   ═══════════════════════════════════════════════════════ */
+.sidebar {
+  width: 240px;
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.sidebar-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1A2B4A 0%, #101D33 60%, #1A2B4A 100%);
+  animation: kenburns 30s ease-in-out infinite alternate;
+}
+
+.sidebar-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(201, 162, 75, 0.18) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(201, 162, 75, 0.12) 0%, transparent 50%);
+}
+
+.sidebar-content {
+  position: relative;
+  z-index: 1;
+  padding: 28px 0;
+  height: 100%;
+}
+
+/* Logo block */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  margin-bottom: 36px;
+}
+
+.sidebar-logo .logo-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #C9A24B 0%, #A8842F 100%);
+  color: #1A2B4A;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-name {
+  font-size: 19px;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+.logo-tagline {
+  font-size: 8px;
+  font-weight: 600;
+  color: #C9A24B;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+}
+
+/* Navigation */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 12px;
+}
+
+.nav-item {
+  display: block;
+  padding: 11px 16px 11px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #9DA8BD;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
+}
+
+.nav-item:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-item.active {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.10);
+  font-weight: 600;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 2px;
+  background: #C9A24B;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MAIN AREA
+   ═══════════════════════════════════════════════════════ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Top bar */
+.topbar {
+  background: #FFFFFF;
+  padding: 18px 40px;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.greeting {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1F2937;
+  margin-bottom: 4px;
+}
+
+.greeting-sub {
+  font-size: 13px;
+  color: #5B6472;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 6px;
+  background: #F4F5F7;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #C9A24B 0%, #A8842F 100%);
+  color: #1A2B4A;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn {
+  padding: 9px 16px;
+  background: transparent;
+  color: #5B6472;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.logout-btn:hover {
+  border-color: #1A2B4A;
+  color: #1A2B4A;
+}
+
+/* Content area */
+.content {
+  padding: 28px 40px;
+  flex: 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   HERO BANNER
+   ═══════════════════════════════════════════════════════ */
+.hero-banner {
+  position: relative;
+  border-radius: 14px;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1A2B4A 0%, #2A3F66 100%);
+}
+
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 30%, rgba(201, 162, 75, 0.20) 0%, transparent 50%),
+    radial-gradient(circle at 95% 80%, rgba(201, 162, 75, 0.12) 0%, transparent 50%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  color: #FFFFFF;
+}
+
+.hero-content h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.hero-content p {
+  font-size: 13.5px;
+  color: #C7D0E0;
+  margin-bottom: 16px;
+  max-width: 540px;
+}
+
+.hero-btn {
+  padding: 10px 22px;
+  background: linear-gradient(135deg, #C9A24B 0%, #A8842F 100%);
+  color: #1A2B4A;
+  border: none;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.15s;
+}
+
+.hero-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(201, 162, 75, 0.35);
+}
+
+/* ═══════════════════════════════════════════════════════
+   STAT CARDS
+   ═══════════════════════════════════════════════════════ */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.stat-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 22px;
+  border-top: 4px solid #2E75B6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: transform 0.12s, box-shadow 0.15s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #5B6472;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1F2937;
+  margin-bottom: 6px;
+}
+
+.stat-sub {
+  font-size: 11px;
+  color: #9CA3AF;
+}
+
+/* ═══════════════════════════════════════════════════════
+   KEN BURNS ANIMATION (reused from login)
+   ═══════════════════════════════════════════════════════ */
+@keyframes kenburns {
+  0%   { transform: scale(1)    translate(0, 0); }
+  100% { transform: scale(1.08) translate(-1%, -1%); }
+}
