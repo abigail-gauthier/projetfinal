@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { loginUser } from '../services/authService';
 import './LoginPage.css';
 
-function LoginPage() {
+function LoginPage({ onSwitchToRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -75,8 +75,11 @@ function LoginPage() {
         </form>
 
         <p className="login-footer">
-          Pas encore de compte ? <a href="#">Créer un compte</a>
-        </p>
+  Pas encore de compte ?{' '}
+  <a href="#" onClick={(e) => { e.preventDefault(); onSwitchToRegister(); }}>
+    Créer un compte
+  </a>
+</p>
       </div>
     </div>
   );
