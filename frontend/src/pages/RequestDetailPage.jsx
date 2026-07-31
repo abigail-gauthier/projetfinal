@@ -101,9 +101,11 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
 
-  // Rich form fields (mirrors NewRequestPage)
+ // === BLOCK: RICH FORM FIELDS (mirrors NewRequestPage) — START === //
   const [serviceTypeId, setServiceTypeId] = useState(1);
+  const [title, setTitle] = useState('');
   const [destination, setDestination] = useState('');
+  // === BLOCK: RICH FORM FIELDS — END === //
   const [neighborhood, setNeighborhood] = useState('');
   const [arrivalDate, setArrivalDate] = useState('');
   const [departureDate, setDepartureDate] = useState('');
@@ -135,9 +137,10 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
     loadRequest();
   }, [requestId, token, startInEditMode]);
 
-  function fillFormFrom(req) {
+ function fillFormFrom(req) {
     const parsed = parseDescription(req.Description);
     setServiceTypeId(req.ServiceTypeId);
+    setTitle(req.Title);
     setDestination(parsed.destination);
     setNeighborhood(parsed.neighborhood);
     setArrivalDate(parsed.arrivalDate);
@@ -187,14 +190,7 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
     setSaveError('');
     setSaving(true);
 
-    try {
-      const serviceTypeLabel =
-        SERVICE_TYPES.find((s) => s.id === serviceTypeId)?.label || 'Service';
-
-      const title = destination
-        ? `${serviceTypeLabel} — ${destination}`
-        : `Nouvelle demande de ${serviceTypeLabel.toLowerCase()}`;
-
+   try {
       const description = [
         `Destination : ${destination || 'non précisée'}`,
         neighborhood ? `Quartier préféré : ${neighborhood}` : null,
@@ -422,7 +418,19 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
 
               {saveError && <div className="request-error">{saveError}</div>}
 
-              <form onSubmit={handleSave} className="request-form-card">
+             <form onSubmit={handleSave} className="request-form-card">
+
+                {/* === BLOCK: TITLE FIELD (EDIT MODE) — START === */}
+                <div className="form-field" style={{ marginBottom: '24px' }}>
+                  <label>TITRE DE LA DEMANDE</label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    disabled={saving}
+                  />
+                </div>
+                {/* === BLOCK: TITLE FIELD (EDIT MODE) — END === */}
 
                 <h3 className="section-title">Détails du séjour</h3>
                 <div className="form-grid-2">

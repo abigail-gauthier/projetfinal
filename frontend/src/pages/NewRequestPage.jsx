@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createRequest } from '../services/requestService';
 import './NewRequestPage.css';
 
@@ -27,8 +27,28 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
   const initial = firstName.charAt(0).toUpperCase();
 
   // Form state
+// === BLOCK: FORM STATE — START === //
   const [serviceTypeId, setServiceTypeId] = useState(1);
+  const [title, setTitle] = useState('');
+  const [titleManuallyEdited, setTitleManuallyEdited] = useState(false);
   const [destination, setDestination] = useState('');
+// === BLOCK: FORM STATE — END === //
+
+// === BLOCK: LIVE TITLE SUGGESTION — START === //
+  useEffect(() => {
+    if (titleManuallyEdited) return;
+
+    const serviceTypeLabel =
+      SERVICE_TYPES.find((s) => s.id === serviceTypeId)?.label || 'Service';
+
+    const suggested = destination
+      ? `${serviceTypeLabel} — ${destination}`
+      : `Nouvelle demande de ${serviceTypeLabel.toLowerCase()}`;
+
+    setTitle(suggested);
+  }, [serviceTypeId, destination, titleManuallyEdited]);
+// === BLOCK: LIVE TITLE SUGGESTION — END === //
+
   const [neighborhood, setNeighborhood] = useState('');
   const [arrivalDate, setArrivalDate] = useState('');
   const [departureDate, setDepartureDate] = useState('');
@@ -58,14 +78,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('lexy_token');
-      const serviceTypeLabel =
-        SERVICE_TYPES.find((s) => s.id === serviceTypeId)?.label || 'Service';
-
-      // Build a clean title from the destination
-      const title = destination
-        ? `${serviceTypeLabel} — ${destination}`
-        : `Nouvelle demande de ${serviceTypeLabel.toLowerCase()}`;
+     const token = localStorage.getItem('lexy_token');
 
       // Build a formatted description containing all the form info
       const description = [
@@ -175,6 +188,21 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
           {error && <div className="request-error">{error}</div>}
 
           <form onSubmit={handleSubmit} className="request-form-card">
+
+            {/* === BLOCK: TITLE FIELD — START === */}
+            <div className="form-field" style={{ marginBottom: '24px' }}>
+              <label>TITRE DE LA DEMANDE</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setTitleManuallyEdited(true);
+                }}
+                disabled={loading}
+              />
+            </div>
+            {/* === BLOCK: TITLE FIELD — END === */}
 
             {/* Section: Stay details */}
             <h3 className="section-title">Détails du séjour</h3>

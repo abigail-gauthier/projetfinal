@@ -138,6 +138,47 @@ async function updateRequest(req, res) {
 }
 
 
+// === BLOCK: DELETE (SOFT) A REQUEST — START === //
+async function deleteRequest(req, res) {
+  try {
+    const requestId = Number(req.params.id);
+
+    // Confirm the request exists and belongs to this user
+    const existing = await prisma.serviceRequests.findUnique({
+      where: { RequestId: requestId }
+    });
+
+    if (!existing || existing.ClientId !== req.user.userId) {
+      return res.status(404).json({ error: 'Demande introuvable.' });
+    }
+
+    // Look up the "Supprimée" status
+    const deletedStatus = await prisma.requestStatuses.findUnique({
+      where: { StatusName: 'Supprimée' }
+    });
+    if (!deletedStatus) {
+      return res.status(500).json({ error: "Le statut « Supprimée » est introuvable." });
+    }
+
+    const updated = await prisma.serviceRequests.update({
+      where: { RequestId: requestId },
+      data: {
+        StatusId: deletedStatus.StatusId,
+        LastModifiedAt: new Date()
+      },
+      include: {
+        RequestStatuses: true,
+        ServiceTypes: true
+      }
+    });
+
+    res.json({ message: 'Demande supprimée avec succès', request: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: DELETE (SOFT) A REQUEST — END === //
+
 // ─── List available service types (for the dropdown) ────
 async function getServiceTypes(req, res) {
   try {
@@ -150,4 +191,4 @@ async function getServiceTypes(req, res) {
   }
 }
 
-module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest };
+module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest };

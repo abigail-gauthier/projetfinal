@@ -215,16 +215,14 @@
 .pill-grid {
   display: flex;
   flex-wrap: wrap;
-  column-gap: 24px;
-  row-gap: 20px;
+  column-gap: 44px;
+  row-gap: 34px;
 }
 
 .pill-pair {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 320px;
-  flex: 0 0 320px;
 }
 
 .pill-label-badge {
@@ -257,12 +255,10 @@
   font-weight: 700;
   color: #1F2937;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  flex: 1 1 auto;
+  flex-shrink: 0;
 }
 /* === BLOCK: PILL GRID — END === */
+
 
 /* === BLOCK: PREFERENCE TAGS — START === */
 .preference-tag {
