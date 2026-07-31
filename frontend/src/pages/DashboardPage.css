@@ -421,3 +421,35 @@
   gap: 16px;
   margin-bottom: 4px;
 }
+
+
+.request-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.request-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.icon-btn:hover {
+  border-color: #C9A24B;
+  background: #FFF7E5;
+}

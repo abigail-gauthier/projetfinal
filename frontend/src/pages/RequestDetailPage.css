@@ -1,0 +1,283 @@
+/* === BLOCK: BACK LINK — START === */
+.back-link {
+  background: none;
+  border: none;
+  color: #5B6472;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+.back-link:hover {
+  color: #1A2B4A;
+}
+/* === BLOCK: BACK LINK — END === */
+
+
+/* === BLOCK: DETAIL CARD SHELL — START === */
+.detail-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 32px 36px;
+  border-left: 6px solid #C9A24B;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.detail-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.detail-code {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9CA3AF;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.detail-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1F2937;
+}
+/* === BLOCK: DETAIL CARD SHELL — END === */
+
+
+/* === BLOCK: TOP INFO ROW (Type de service / Budget / Créée le / Modif) — START === */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.detail-field label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #5B6472;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #1F2937;
+}
+/* === BLOCK: TOP INFO ROW — END === */
+
+
+/* === BLOCK: DESCRIPTION / NOTES TEXT BOX — START === */
+.detail-description {
+  font-size: 14px;
+  color: #1F2937;
+  line-height: 1.6;
+  white-space: pre-line;
+  background: #F4F5F7;
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+/* === BLOCK: DESCRIPTION / NOTES TEXT BOX — END === */
+
+
+/* === BLOCK: VIEW-MODE ACTIONS (Modifier button) — START === */
+.detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.edit-btn {
+  padding: 11px 24px;
+  background: linear-gradient(135deg, #C9A24B 0%, #A8842F 100%);
+  color: #1A2B4A;
+  border: none;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.15s;
+}
+
+.edit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(201, 162, 75, 0.35);
+}
+/* === BLOCK: VIEW-MODE ACTIONS — END === */
+
+
+/* === BLOCK: EDIT-MODE ACTIONS (Annuler / Sauvegarder) — START === */
+.cancel-btn {
+  padding: 11px 22px;
+  background: #FFFFFF;
+  color: #1F2937;
+  border: 1px solid #D1D5DB;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  border-color: #1A2B4A;
+}
+
+.save-btn {
+  padding: 11px 26px;
+  background: linear-gradient(135deg, #C9A24B 0%, #A8842F 100%);
+  color: #1A2B4A;
+  border: none;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.save-btn:disabled,
+.cancel-btn:disabled,
+.edit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+/* === BLOCK: EDIT-MODE ACTIONS — END === */
+
+
+/* === BLOCK: EDIT-MODE FORM INPUTS (top info row only) — START === */
+.detail-field select,
+.detail-field input,
+.detail-field textarea {
+  padding: 10px 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: #1F2937;
+  background: #F4F5F7;
+}
+
+.detail-field textarea {
+  resize: vertical;
+}
+
+.detail-field select:focus,
+.detail-field input:focus,
+.detail-field textarea:focus {
+  outline: none;
+  border-color: #C9A24B;
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.15);
+}
+/* === BLOCK: EDIT-MODE FORM INPUTS — END === */
+
+
+/* === BLOCK: PILL SECTION LABELS (Détails de la demande / Préférences / Notes) — START === */
+.info-section {
+  margin-bottom: 8px;
+}
+
+.section-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #5B6472;
+  letter-spacing: 0.5px;
+  margin-top: 34px;
+  margin-bottom: 16px;
+}
+
+.section-label-first {
+  margin-top: 0;
+}
+/* === BLOCK: PILL SECTION LABELS — END === */
+
+
+/* === BLOCK: PILL GRID (field + value pairs, aligned rows/columns) — START === */
+.pill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 24px;
+  row-gap: 20px;
+}
+
+.pill-pair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 320px;
+  flex: 0 0 320px;
+}
+
+.pill-label-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #EFE6D3;
+  border: 1px solid #E0D3B3;
+  border-radius: 18px;
+  padding: 9px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7A5F26;
+  white-space: nowrap;
+  min-width: 150px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pill-icon {
+  font-size: 14px;
+}
+
+.pill-value-badge {
+  background: #F4F5F7;
+  border: 1px solid #E5E7EB;
+  border-radius: 18px;
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1F2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+/* === BLOCK: PILL GRID — END === */
+
+/* === BLOCK: PREFERENCE TAGS — START === */
+.preference-tag {
+  background: rgba(201, 162, 75, 0.15);
+  border: 1px solid rgba(201, 162, 75, 0.4);
+  color: #A8842F;
+  border-radius: 16px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.preferences-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+/* === BLOCK: PREFERENCE TAGS — END === */

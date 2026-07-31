@@ -1,4 +1,3 @@
-
 \# LAST UPDATE: 2026-06-18
 
 Le JWT token fonctionne correctement.

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getMyRequests } from '../services/requestService';
 import './DashboardPage.css';
 
-function DashboardPage({ onLogout, onNewRequest }) {
+function DashboardPage({ onLogout, onNewRequest, onViewRequest, onEditRequest }) {
   // Get the stored user info from localStorage
   const userJson = localStorage.getItem('lexy_user');
   const user = userJson ? JSON.parse(userJson) : null;
@@ -141,8 +141,13 @@ function DashboardPage({ onLogout, onNewRequest }) {
 
             {!requestsError && !loadingRequests && requests.length > 0 && (
               <div className="requests-list">
-               {requests.map((request) => (
-  <div className="request-item" key={request.RequestId}>
+           {requests.map((request) => (
+  <div
+    className="request-item"
+    key={request.RequestId}
+    onClick={() => onViewRequest(request.RequestId)}
+    style={{ cursor: 'pointer' }}
+  >
     <div className="request-item-main">
       <div className="request-item-title-row">
         <div className="request-item-title">{request.Title}</div>
@@ -152,9 +157,17 @@ function DashboardPage({ onLogout, onNewRequest }) {
       </div>
       <div className="request-item-date">{formatDate(request.CreatedAt)}</div>
     </div>
+    <div className="request-item-actions">
+      <button
+        className="icon-btn"
+        onClick={(e) => { e.stopPropagation(); onEditRequest(request.RequestId); }}
+        title="Modifier"
+      >
+        ✏️
+      </button>
+    </div>
   </div>
-))}
-              </div>
+))}          </div>
             )}
           </section>
 

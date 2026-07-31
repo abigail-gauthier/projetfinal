@@ -49,3 +49,41 @@ export async function getServiceTypes(token) {
 
   return data;
 }
+
+
+// Get a single request by its ID
+export async function getRequestById(requestId, token) {
+  const response = await fetch(`${API_URL}/requests/${requestId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors du chargement de la demande');
+  }
+
+  return data;
+}
+
+// Update an existing request
+export async function updateRequest(requestId, requestData, token) {
+  const response = await fetch(`${API_URL}/requests/${requestId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(requestData)
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors de la mise à jour de la demande');
+  }
+
+  return data;
+}
+
+

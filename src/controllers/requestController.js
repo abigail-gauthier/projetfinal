@@ -66,6 +66,78 @@ async function getMyRequests(req, res) {
   }
 }
 
+// ─── Get a single request belonging to the logged-in user ─
+async function getRequestById(req, res) {
+  try {
+    const requestId = Number(req.params.id);
+
+    const request = await prisma.serviceRequests.findUnique({
+      where: { RequestId: requestId },
+      include: {
+        RequestStatuses: true,
+        ServiceTypes: true
+      }
+    });
+
+    if (!request) {
+      return res.status(404).json({ error: 'Demande introuvable.' });
+    }
+
+    // Make sure this request actually belongs to the logged-in user
+    if (request.ClientId !== req.user.userId) {
+      return res.status(404).json({ error: 'Demande introuvable.' });
+    }
+
+    res.json({ message: 'Demande récupérée avec succès', request });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+// ─── Update a request belonging to the logged-in user ───
+async function updateRequest(req, res) {
+  try {
+    const requestId = Number(req.params.id);
+    const { ServiceTypeId, Title, Description, Cost } = req.body;
+
+    if (!ServiceTypeId || !Title || !Description) {
+      return res.status(400).json({
+        error: 'Les champs Type de service, Titre et Description sont obligatoires.'
+      });
+    }
+
+    // First confirm the request exists and belongs to this user
+    const existing = await prisma.serviceRequests.findUnique({
+      where: { RequestId: requestId }
+    });
+
+    if (!existing || existing.ClientId !== req.user.userId) {
+      return res.status(404).json({ error: 'Demande introuvable.' });
+    }
+
+    const updated = await prisma.serviceRequests.update({
+      where: { RequestId: requestId },
+      data: {
+        ServiceTypeId: Number(ServiceTypeId),
+        Title,
+        Description,
+        Cost: Cost !== undefined && Cost !== null && Cost !== '' ? Number(Cost) : null,
+        LastModifiedAt: new Date()
+      },
+      include: {
+        RequestStatuses: true,
+        ServiceTypes: true
+      }
+    });
+
+    res.json({ message: 'Demande mise à jour avec succès', request: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 // ─── List available service types (for the dropdown) ────
 async function getServiceTypes(req, res) {
   try {
@@ -78,4 +150,4 @@ async function getServiceTypes(req, res) {
   }
 }
 
-module.exports = { createRequest, getMyRequests, getServiceTypes };
+module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest };
