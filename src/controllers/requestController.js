@@ -267,6 +267,47 @@ async function submitRequest(req, res) {
 }
 // === BLOCK: SUBMIT A RESTORED REQUEST — END === //
 
+// === BLOCK: SAVE REQUEST AS DRAFT (En attente) — START === //
+async function saveRequestAsDraft(req, res) {
+  try {
+    const { ServiceTypeId, Title, Description, Cost } = req.body;
+
+    if (!ServiceTypeId || !Title) {
+      return res.status(400).json({
+        error: 'Le type de service et le titre sont obligatoires.'
+      });
+    }
+
+    const waitingStatus = await prisma.requestStatuses.findUnique({
+      where: { StatusName: 'En attente' }
+    });
+    if (!waitingStatus) {
+      return res.status(500).json({ error: "Le statut « En attente » est introuvable." });
+    }
+
+    const requestCode = await generateRequestCode();
+
+    const newRequest = await prisma.serviceRequests.create({
+      data: {
+        RequestCode: requestCode,
+        ClientId: req.user.userId,
+        ServiceTypeId: Number(ServiceTypeId),
+        StatusId: waitingStatus.StatusId,
+        Title,
+        Description,
+        Cost: Cost !== undefined && Cost !== null && Cost !== '' ? Number(Cost) : null,
+        CreatedAt: new Date()
+      }
+    });
+
+    res.status(201).json({ message: 'Demande sauvegardée avec succès', request: newRequest });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: SAVE REQUEST AS DRAFT — END === //
+
+
 // ─── List available service types (for the dropdown) ────
 async function getServiceTypes(req, res) {
   try {
@@ -279,4 +320,4 @@ async function getServiceTypes(req, res) {
   }
 }
 
-module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest, submitRequest };
+module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest, submitRequest, saveRequestAsDraft };

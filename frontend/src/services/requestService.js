@@ -136,3 +136,24 @@ export async function submitRequest(requestId, token) {
   return data;
 }
 // === BLOCK: SUBMIT A RESTORED REQUEST — END === //
+
+// === BLOCK: SAVE REQUEST AS DRAFT — START === //
+export async function saveRequest(requestData, token) {
+  const response = await fetch(`${API_URL}/requests/save`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(requestData)
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors de la sauvegarde de la demande');
+  }
+
+  return data;
+}
+// === BLOCK: SAVE REQUEST AS DRAFT — END === //

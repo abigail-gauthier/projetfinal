@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { createRequest } from '../services/requestService';
+import { createRequest, saveRequest, updateRequest } from '../services/requestService';
 import './NewRequestPage.css';
 
 const SERVICE_TYPES = [
@@ -20,34 +20,29 @@ const PREFERENCES_LIST = [
 ];
 
 function NewRequestPage({ onBackToDashboard, onLogout }) {
-  // Get the stored user info
   const userJson = localStorage.getItem('lexy_user');
   const user = userJson ? JSON.parse(userJson) : null;
   const firstName = user?.firstName || 'invité';
   const initial = firstName.charAt(0).toUpperCase();
 
-  // Form state
-// === BLOCK: FORM STATE — START === //
+  // === BLOCK: FORM STATE — START === //
   const [serviceTypeId, setServiceTypeId] = useState(1);
   const [title, setTitle] = useState('');
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false);
   const [destination, setDestination] = useState('');
-// === BLOCK: FORM STATE — END === //
+  // === BLOCK: FORM STATE — END === //
 
-// === BLOCK: LIVE TITLE SUGGESTION — START === //
+  // === BLOCK: LIVE TITLE SUGGESTION — START === //
   useEffect(() => {
     if (titleManuallyEdited) return;
-
     const serviceTypeLabel =
       SERVICE_TYPES.find((s) => s.id === serviceTypeId)?.label || 'Service';
-
     const suggested = destination
       ? `${serviceTypeLabel} — ${destination}`
       : `Nouvelle demande de ${serviceTypeLabel.toLowerCase()}`;
-
     setTitle(suggested);
   }, [serviceTypeId, destination, titleManuallyEdited]);
-// === BLOCK: LIVE TITLE SUGGESTION — END === //
+  // === BLOCK: LIVE TITLE SUGGESTION — END === //
 
   const [neighborhood, setNeighborhood] = useState('');
   const [arrivalDate, setArrivalDate] = useState('');
@@ -63,6 +58,22 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+// === BLOCK: SAVE DRAFT STATE — START === //
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [savedRequestId, setSavedRequestId] = useState(null);
+  // === BLOCK: SAVE DRAFT STATE — END === //
+
+  // === BLOCK: RESET SAVE STATE ON EDIT — START === //
+  function resetSaveState() {
+    if (saveSuccess) {
+      setSaveSuccess(false);
+      setSaving(false);
+    }
+  }
+  // === BLOCK: RESET SAVE STATE ON EDIT — END === //
 
   function togglePreference(pref) {
     if (preferences.includes(pref)) {
@@ -70,6 +81,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
     } else {
       setPreferences([...preferences, pref]);
     }
+    resetSaveState();
   }
 
   async function handleSubmit(event) {
@@ -78,9 +90,8 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
     setLoading(true);
 
     try {
-     const token = localStorage.getItem('lexy_token');
+      const token = localStorage.getItem('lexy_token');
 
-      // Build a formatted description containing all the form info
       const description = [
         `Destination : ${destination || 'non précisée'}`,
         neighborhood ? `Quartier préféré : ${neighborhood}` : null,
@@ -94,7 +105,6 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
         .filter(Boolean)
         .join('\n');
 
-      // Use the budget max as the cost (or null if not provided)
       const cost = budgetMax ? Number(budgetMax) : null;
 
       await createRequest(
@@ -107,13 +117,69 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
         token
       );
 
-      onBackToDashboard();
+      setSubmitSuccess(true);
     } catch (err) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   }
+
+  // === BLOCK: SAVE DRAFT HANDLER — START === //
+  async function handleSave() {
+    setSaving(true);
+    setError('');
+
+    try {
+      const token = localStorage.getItem('lexy_token');
+
+      const description = [
+        `Destination : ${destination || 'non précisée'}`,
+        neighborhood ? `Quartier préféré : ${neighborhood}` : null,
+        `Dates : ${arrivalDate || '?'} au ${departureDate || '?'} (${flexibility === 'fixed' ? 'fixes' : '± 2 jours'})`,
+        `Voyageurs : ${travelers}, ${rooms}`,
+        `Catégorie : ${hotelCategory}`,
+        `Budget par nuit : ${budgetMin || '?'} $ — ${budgetMax || '?'} $`,
+        preferences.length > 0 ? `Préférences : ${preferences.join(', ')}` : null,
+        notes ? `Notes : ${notes}` : null
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      const cost = budgetMax ? Number(budgetMax) : null;
+
+      if (savedRequestId) {
+        // === Already saved once — update the existing request === //
+        await updateRequest(
+          savedRequestId,
+          {
+            ServiceTypeId: serviceTypeId,
+            Title: title,
+            Description: description,
+            Cost: cost
+          },
+          token
+        );
+      } else {
+        // === First save — create a new draft === //
+        const result = await saveRequest(
+          {
+            ServiceTypeId: serviceTypeId,
+            Title: title,
+            Description: description,
+            Cost: cost
+          },
+          token
+        );
+        setSavedRequestId(result.request.RequestId);
+      }
+
+      setSaveSuccess(true);
+    } catch (err) {
+      setError(err.message);
+      setSaving(false);
+    }
+  }
+  // === BLOCK: SAVE DRAFT HANDLER — END === //
 
   return (
     <div className="dashboard">
@@ -121,7 +187,6 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
       {/* ═════════ SIDEBAR ═════════ */}
       <aside className="sidebar">
         <div className="sidebar-bg"></div>
-
         <div className="sidebar-content">
           <div className="sidebar-logo">
             <div className="logo-mark">L</div>
@@ -130,7 +195,6 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
               <div className="logo-tagline">EXECUTIVE SERVICE</div>
             </div>
           </div>
-
           <nav className="sidebar-nav">
             <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); onBackToDashboard(); }}>
               Tableau de bord
@@ -147,13 +211,11 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
       {/* ═════════ MAIN AREA ═════════ */}
       <div className="main">
 
-        {/* Top bar */}
         <header className="topbar">
           <div>
             <h1 className="greeting">Nouvelle demande de service</h1>
             <p className="greeting-sub">Décrivez votre besoin — votre agent s'occupe du reste.</p>
           </div>
-
           <div className="topbar-right">
             <div className="user-chip">
               <div className="user-avatar">{initial}</div>
@@ -165,8 +227,13 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
           </div>
         </header>
 
-        {/* Content area */}
         <main className="content">
+
+          {/* === BLOCK: BACK BUTTON — START === */}
+          <button className="back-link" onClick={onBackToDashboard}>
+            ← Retour
+          </button>
+          {/* === BLOCK: BACK BUTTON — END === */}
 
           {/* Service type selector */}
           <div className="service-type-row">
@@ -177,7 +244,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                   key={type.id}
                   type="button"
                   className={`type-chip ${serviceTypeId === type.id ? 'active' : ''}`}
-                  onClick={() => setServiceTypeId(type.id)}
+                  onClick={() => { setServiceTypeId(type.id); resetSaveState(); }}
                 >
                   {type.label}
                 </button>
@@ -186,6 +253,28 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
           </div>
 
           {error && <div className="request-error">{error}</div>}
+
+          {/* === BLOCK: SAVE SUCCESS BANNER — START === */}
+          {saveSuccess && (
+            <div className="save-success-banner">
+              📋 Demande sauvegardée — tu pourras l'envoyer plus tard.
+              <button className="submit-success-back" onClick={onBackToDashboard}>
+                Retour au tableau de bord →
+              </button>
+            </div>
+          )}
+          {/* === BLOCK: SAVE SUCCESS BANNER — END === */}
+
+          {/* === BLOCK: SUBMIT SUCCESS BANNER — START === */}
+          {submitSuccess && (
+            <div className="submit-success-banner">
+              ✅ Ta demande a été envoyée avec succès !
+              <button className="submit-success-back" onClick={onBackToDashboard}>
+                Retour au tableau de bord →
+              </button>
+            </div>
+          )}
+          {/* === BLOCK: SUBMIT SUCCESS BANNER — END === */}
 
           <form onSubmit={handleSubmit} className="request-form-card">
 
@@ -198,13 +287,13 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                 onChange={(e) => {
                   setTitle(e.target.value);
                   setTitleManuallyEdited(true);
+                  resetSaveState();
                 }}
                 disabled={loading}
               />
             </div>
             {/* === BLOCK: TITLE FIELD — END === */}
 
-            {/* Section: Stay details */}
             <h3 className="section-title">Détails du séjour</h3>
             <div className="form-grid-2">
               <div className="form-field">
@@ -213,7 +302,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                   type="text"
                   placeholder="Paris, France"
                   value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
+                  onChange={(e) => { setDestination(e.target.value); resetSaveState(); }}
                   disabled={loading}
                 />
               </div>
@@ -223,18 +312,19 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                   type="text"
                   placeholder="Près des Champs-Élysées"
                   value={neighborhood}
-                  onChange={(e) => setNeighborhood(e.target.value)}
+                  onChange={(e) => { setNeighborhood(e.target.value); resetSaveState(); }}
                   disabled={loading}
                 />
               </div>
             </div>
+
             <div className="form-grid-3">
               <div className="form-field">
                 <label>DATE D'ARRIVÉE</label>
                 <input
                   type="date"
                   value={arrivalDate}
-                  onChange={(e) => setArrivalDate(e.target.value)}
+                  onChange={(e) => { setArrivalDate(e.target.value); resetSaveState(); }}
                   disabled={loading}
                 />
               </div>
@@ -243,7 +333,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                 <input
                   type="date"
                   value={departureDate}
-                  onChange={(e) => setDepartureDate(e.target.value)}
+                  onChange={(e) => { setDepartureDate(e.target.value); resetSaveState(); }}
                   disabled={loading}
                 />
               </div>
@@ -256,7 +346,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                       name="flexibility"
                       value="fixed"
                       checked={flexibility === 'fixed'}
-                      onChange={(e) => setFlexibility(e.target.value)}
+                      onChange={(e) => { setFlexibility(e.target.value); resetSaveState(); }}
                     /> Fixes
                   </label>
                   <label className="radio-item">
@@ -265,7 +355,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                       name="flexibility"
                       value="flex"
                       checked={flexibility === 'flex'}
-                      onChange={(e) => setFlexibility(e.target.value)}
+                      onChange={(e) => { setFlexibility(e.target.value); resetSaveState(); }}
                     /> ± 2 jours
                   </label>
                 </div>
@@ -274,12 +364,11 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
 
             <hr className="section-divider" />
 
-            {/* Section: Room and travelers */}
             <h3 className="section-title">Chambre et voyageurs</h3>
             <div className="form-grid-3">
               <div className="form-field">
                 <label>NOMBRE DE VOYAGEURS</label>
-                <select value={travelers} onChange={(e) => setTravelers(e.target.value)} disabled={loading}>
+                <select value={travelers} onChange={(e) => { setTravelers(e.target.value); resetSaveState(); }} disabled={loading}>
                   <option>1 adulte</option>
                   <option>2 adultes</option>
                   <option>3 adultes</option>
@@ -290,7 +379,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
               </div>
               <div className="form-field">
                 <label>NOMBRE DE CHAMBRES</label>
-                <select value={rooms} onChange={(e) => setRooms(e.target.value)} disabled={loading}>
+                <select value={rooms} onChange={(e) => { setRooms(e.target.value); resetSaveState(); }} disabled={loading}>
                   <option>1 chambre</option>
                   <option>2 chambres</option>
                   <option>3 chambres</option>
@@ -298,7 +387,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
               </div>
               <div className="form-field">
                 <label>CATÉGORIE D'HÔTEL</label>
-                <select value={hotelCategory} onChange={(e) => setHotelCategory(e.target.value)} disabled={loading}>
+                <select value={hotelCategory} onChange={(e) => { setHotelCategory(e.target.value); resetSaveState(); }} disabled={loading}>
                   <option>3 étoiles</option>
                   <option>4 étoiles</option>
                   <option>4 à 5 étoiles</option>
@@ -307,6 +396,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                 </select>
               </div>
             </div>
+
             <div className="form-grid-2">
               <div className="form-field">
                 <label>BUDGET MINIMUM ($/NUIT)</label>
@@ -314,7 +404,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                   type="number"
                   placeholder="300"
                   value={budgetMin}
-                  onChange={(e) => setBudgetMin(e.target.value)}
+                  onChange={(e) => { setBudgetMin(e.target.value); resetSaveState(); }}
                   disabled={loading}
                 />
               </div>
@@ -324,7 +414,7 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                   type="number"
                   placeholder="450"
                   value={budgetMax}
-                  onChange={(e) => setBudgetMax(e.target.value)}
+                  onChange={(e) => { setBudgetMax(e.target.value); resetSaveState(); }}
                   disabled={loading}
                 />
               </div>
@@ -332,7 +422,6 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
 
             <hr className="section-divider" />
 
-            {/* Section: Preferences */}
             <h3 className="section-title">Préférences et précisions</h3>
             <div className="form-field">
               <label>PRÉFÉRENCES (PLUSIEURS CHOIX POSSIBLES)</label>
@@ -356,25 +445,38 @@ function NewRequestPage({ onBackToDashboard, onLogout }) {
                 rows={3}
                 placeholder="Idéalement un hôtel calme, proche d'une station de métro. Lit king si possible."
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(e) => { setNotes(e.target.value); resetSaveState(); }}
                 disabled={loading}
               />
             </div>
 
-            {/* Action buttons */}
+            {/* === BLOCK: FORM ACTIONS — START === */}
             <div className="form-actions">
               <button
                 type="button"
                 className="cancel-btn"
                 onClick={onBackToDashboard}
-                disabled={loading}
+                disabled={loading || saving}
               >
                 Annuler
               </button>
-              <button type="submit" className="submit-btn" disabled={loading}>
-                {loading ? 'Envoi en cours...' : 'Envoyer la demande →'}
+              <button
+                type="button"
+                className={`save-draft-btn ${saving || saveSuccess ? 'save-draft-btn--saved' : ''}`}
+                onClick={handleSave}
+                disabled={saving || saveSuccess || loading}
+              >
+                {saving || saveSuccess ? '📋 Demande sauvegardée' : '📋 Sauvegarder'}
+              </button>
+              <button
+                type="submit"
+                className={`submit-btn ${loading ? 'submit-btn--sending' : ''}`}
+                disabled={loading}
+              >
+                {loading ? '✅ Demande envoyée' : 'Envoyer la demande →'}
               </button>
             </div>
+            {/* === BLOCK: FORM ACTIONS — END === */}
 
           </form>
 

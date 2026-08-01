@@ -239,3 +239,101 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* === BLOCK: SUBMIT BUTTON SENDING STATE — START === */
+.submit-btn--sending {
+  background: #D1D5DB;
+  color: #6B7280;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.submit-btn--sending:hover {
+  transform: none;
+  box-shadow: none;
+}
+/* === BLOCK: SUBMIT BUTTON SENDING STATE — END === */
+
+
+/* === BLOCK: SUCCESS BANNER — START === */
+.submit-success-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #DCFCE7;
+  border: 1px solid #BBF7D0;
+  color: #15803D;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.submit-success-back {
+  background: none;
+  border: none;
+  color: #15803D;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: underline;
+}
+
+.submit-success-back:hover {
+  color: #166534;
+}
+/* === BLOCK: SUCCESS BANNER — END === */
+
+/* === BLOCK: SAVE DRAFT BUTTON — START === */
+.save-draft-btn {
+  padding: 11px 24px;
+  background: #FFFFFF;
+  color: #1A2B4A;
+  border: 1.5px solid #1A2B4A;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.save-draft-btn:hover {
+  background: #1A2B4A;
+  color: #FFFFFF;
+}
+
+.save-draft-btn--saved {
+  background: #F4F5F7;
+  color: #9CA3AF;
+  border-color: #E5E7EB;
+  cursor: not-allowed;
+}
+
+.save-draft-btn--saved:hover {
+  background: #F4F5F7;
+  color: #9CA3AF;
+}
+/* === BLOCK: SAVE DRAFT BUTTON — END === */
+
+/* === BLOCK: SAVE SUCCESS BANNER — START === */
+.save-success-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1D4ED8;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+/* === BLOCK: SAVE SUCCESS BANNER — END === */
