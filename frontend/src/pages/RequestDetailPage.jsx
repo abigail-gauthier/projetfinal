@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getRequestById, updateRequest, restoreRequest, deleteRequest } from '../services/requestService';
+import { getRequestById, updateRequest, restoreRequest, deleteRequest, submitRequest } from '../services/requestService';
 import './RequestDetailPage.css';
 import './NewRequestPage.css';
 
@@ -190,6 +190,18 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
     }
   }
   // === BLOCK: RESTORE HANDLER — END === //
+
+// === BLOCK: SUBMIT HANDLER — START === //
+  async function handleSubmit() {
+    try {
+      const result = await submitRequest(requestId, token);
+      setRequest(result.request);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+  // === BLOCK: SUBMIT HANDLER — END === //
+
   function startEditing() {
     fillFormFrom(request);
     setSaveError('');
@@ -416,7 +428,15 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
                     ↩ Restaurer
                   </button>
                 ) : (
-                  <>
+               <>
+                    {/* === BLOCK: SEND BUTTON (only for En attente) — START === */}
+                    {request.RequestStatuses?.StatusName === 'En attente' && (
+                      <button className="submit-detail-btn" onClick={handleSubmit}>
+                        ✉️ Envoyer la demande
+                      </button>
+                    )}
+                    {/* === BLOCK: SEND BUTTON — END === */}
+
                     {/* Delete button + popover */}
                     <div className="detail-popover-wrapper">
                       <button

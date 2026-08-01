@@ -227,6 +227,45 @@ async function restoreRequest(req, res) {
 }
 // === BLOCK: RESTORE A DELETED REQUEST — END === //
 
+// === BLOCK: SUBMIT A RESTORED REQUEST — START === //
+async function submitRequest(req, res) {
+  try {
+    const requestId = Number(req.params.id);
+
+    const existing = await prisma.serviceRequests.findUnique({
+      where: { RequestId: requestId }
+    });
+
+    if (!existing || existing.ClientId !== req.user.userId) {
+      return res.status(404).json({ error: 'Demande introuvable.' });
+    }
+
+    // Look up the "Envoyée" status
+    const sentStatus = await prisma.requestStatuses.findUnique({
+      where: { StatusName: 'Envoyée' }
+    });
+    if (!sentStatus) {
+      return res.status(500).json({ error: "Le statut « Envoyée » est introuvable." });
+    }
+
+    const updated = await prisma.serviceRequests.update({
+      where: { RequestId: requestId },
+      data: {
+        StatusId: sentStatus.StatusId,
+        LastModifiedAt: new Date()
+      },
+      include: {
+        RequestStatuses: true,
+        ServiceTypes: true
+      }
+    });
+
+    res.json({ message: 'Demande envoyée avec succès', request: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: SUBMIT A RESTORED REQUEST — END === //
 
 // ─── List available service types (for the dropdown) ────
 async function getServiceTypes(req, res) {
@@ -240,4 +279,4 @@ async function getServiceTypes(req, res) {
   }
 }
 
-module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest };
+module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest, submitRequest };

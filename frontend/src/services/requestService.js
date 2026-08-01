@@ -118,3 +118,21 @@ export async function restoreRequest(requestId, token) {
   return data;
 }
 // === BLOCK: RESTORE A DELETED REQUEST — END === //
+
+
+// === BLOCK: SUBMIT A RESTORED REQUEST — START === //
+export async function submitRequest(requestId, token) {
+  const response = await fetch(`${API_URL}/requests/${requestId}/submit`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors de l\'envoi de la demande');
+  }
+
+  return data;
+}
+// === BLOCK: SUBMIT A RESTORED REQUEST — END === //
