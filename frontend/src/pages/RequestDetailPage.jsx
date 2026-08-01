@@ -429,10 +429,17 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
                   </button>
                 ) : (
                <>
-                    {/* === BLOCK: SEND BUTTON (only for En attente) — START === */}
-                    {request.RequestStatuses?.StatusName === 'En attente' && (
-                      <button className="submit-detail-btn" onClick={handleSubmit}>
-                        ✉️ Envoyer la demande
+                    {/* === BLOCK: SEND BUTTON (visible for En attente + Envoyée) — START === */}
+                    {(request.RequestStatuses?.StatusName === 'En attente' ||
+                      request.RequestStatuses?.StatusName === 'Envoyée') && (
+                      <button
+                        className={`submit-detail-btn ${request.RequestStatuses?.StatusName === 'Envoyée' ? 'submit-detail-btn--sent' : ''}`}
+                        onClick={handleSubmit}
+                        disabled={request.RequestStatuses?.StatusName === 'Envoyée'}
+                      >
+                        {request.RequestStatuses?.StatusName === 'Envoyée'
+                          ? '✅ Demande envoyée'
+                          : '✉️ Envoyer la demande'}
                       </button>
                     )}
                     {/* === BLOCK: SEND BUTTON — END === */}

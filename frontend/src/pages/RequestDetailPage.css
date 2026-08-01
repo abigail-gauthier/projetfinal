@@ -447,3 +447,19 @@
   box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
 }
 /* === BLOCK: SEND BUTTON ON DETAIL PAGE — END === */
+
+
+/* === BLOCK: SEND BUTTON SENT STATE — START === */
+.submit-detail-btn--sent {
+  background: #F4F5F7;
+  color: #9CA3AF;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submit-detail-btn--sent:hover {
+  transform: none;
+  box-shadow: none;
+}
+/* === BLOCK: SEND BUTTON SENT STATE — END === */
