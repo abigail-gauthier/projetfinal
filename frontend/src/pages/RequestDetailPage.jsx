@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getRequestById, updateRequest, restoreRequest } from '../services/requestService';
+import { getRequestById, updateRequest, restoreRequest, deleteRequest } from '../services/requestService';
 import './RequestDetailPage.css';
 import './NewRequestPage.css';
 
@@ -101,6 +101,10 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
 
+  // === BLOCK: DELETE POPOVER STATE — START === //
+  const [showDeletePopover, setShowDeletePopover] = useState(false);
+  // === BLOCK: DELETE POPOVER STATE — END === //
+
  // === BLOCK: RICH FORM FIELDS (mirrors NewRequestPage) — START === //
   const [serviceTypeId, setServiceTypeId] = useState(1);
   const [title, setTitle] = useState('');
@@ -165,7 +169,17 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
       minute: '2-digit'
     });
   }
-
+// === BLOCK: DELETE HANDLER (detail page) — START === //
+  async function handleDelete() {
+    try {
+      const result = await deleteRequest(requestId, token);
+      setRequest(result.request);
+      setShowDeletePopover(false);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+  // === BLOCK: DELETE HANDLER (detail page) — END === //
   // === BLOCK: RESTORE HANDLER — START === //
   async function handleRestore() {
     try {
@@ -402,9 +416,43 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
                     ↩ Restaurer
                   </button>
                 ) : (
-                  <button className="edit-btn" onClick={startEditing}>
-                    ✏️ Modifier
-                  </button>
+                  <>
+                    {/* Delete button + popover */}
+                    <div className="detail-popover-wrapper">
+                      <button
+                        className="delete-btn"
+                        onClick={() => setShowDeletePopover((prev) => !prev)}
+                      >
+                        🗑️ Supprimer
+                      </button>
+
+                      {showDeletePopover && (
+                        <div className="detail-delete-popover">
+                          <div className="popover-arrow-left" />
+                          <p className="popover-message">Confirmer la suppression</p>
+                          <div className="popover-actions">
+                            <button
+                              className="popover-cancel"
+                              onClick={() => setShowDeletePopover(false)}
+                            >
+                              Annuler
+                            </button>
+                            <button
+                              className="popover-confirm"
+                              onClick={handleDelete}
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Edit button */}
+                    <button className="edit-btn" onClick={startEditing}>
+                      ✏️ Modifier
+                    </button>
+                  </>
                 )}
               </div>
               {/* === BLOCK: VIEW-MODE ACTIONS — END === */}
