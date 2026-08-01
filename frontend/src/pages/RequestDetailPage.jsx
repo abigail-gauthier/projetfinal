@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getRequestById, updateRequest } from '../services/requestService';
+import { getRequestById, updateRequest, restoreRequest } from '../services/requestService';
 import './RequestDetailPage.css';
 import './NewRequestPage.css';
 
@@ -166,6 +166,16 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
     });
   }
 
+  // === BLOCK: RESTORE HANDLER — START === //
+  async function handleRestore() {
+    try {
+      const result = await restoreRequest(requestId, token);
+      setRequest(result.request);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+  // === BLOCK: RESTORE HANDLER — END === //
   function startEditing() {
     fillFormFrom(request);
     setSaveError('');
@@ -281,6 +291,14 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
           {!loading && !error && request && !isEditing && (
             <div className="detail-card">
 
+              {/* === BLOCK: DELETED BANNER — START === */}
+              {request.RequestStatuses?.StatusName === 'Supprimée' && (
+                <div className="deleted-banner">
+                  Cette demande a été supprimée.
+                </div>
+              )}
+              {/* === BLOCK: DELETED BANNER — END === */}
+
               <div className="detail-header-row">
                 <div>
                   <div className="detail-code">{request.RequestCode}</div>
@@ -377,17 +395,25 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
                 );
               })()}
 
+             {/* === BLOCK: VIEW-MODE ACTIONS — START === */}
               <div className="detail-actions">
-                <button className="edit-btn" onClick={startEditing}>
-                  ✏️ Modifier
-                </button>
+                {request.RequestStatuses?.StatusName === 'Supprimée' ? (
+                  <button className="restore-btn" onClick={handleRestore}>
+                    ↩ Restaurer
+                  </button>
+                ) : (
+                  <button className="edit-btn" onClick={startEditing}>
+                    ✏️ Modifier
+                  </button>
+                )}
               </div>
+              {/* === BLOCK: VIEW-MODE ACTIONS — END === */}
 
             </div>
           )}
 
           {/* ═════════ EDIT MODE — mirrors NewRequestPage ═════════ */}
-          {!loading && !error && request && isEditing && (
+          {!loading && !error && request && isEditing && request.RequestStatuses?.StatusName !== 'Supprimée' && (
             <>
               <div className="detail-header-row" style={{ marginBottom: '20px' }}>
                 <div>

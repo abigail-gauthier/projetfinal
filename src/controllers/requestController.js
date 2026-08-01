@@ -179,6 +179,55 @@ async function deleteRequest(req, res) {
 }
 // === BLOCK: DELETE (SOFT) A REQUEST — END === //
 
+// === BLOCK: RESTORE A DELETED REQUEST — START === //
+async function restoreRequest(req, res) {
+  try {
+    const requestId = Number(req.params.id);
+
+    const existing = await prisma.serviceRequests.findUnique({
+      where: { RequestId: requestId }
+    });
+
+    if (!existing || existing.ClientId !== req.user.userId) {
+      return res.status(404).json({ error: 'Demande introuvable.' });
+    }
+
+    // Confirm the request is actually deleted before restoring
+    const currentStatus = await prisma.requestStatuses.findUnique({
+      where: { StatusId: existing.StatusId }
+    });
+    if (currentStatus?.StatusName !== 'Supprimée') {
+      return res.status(400).json({ error: 'Cette demande n\'est pas supprimée.' });
+    }
+
+    // Look up the "En attente" status
+    const waitingStatus = await prisma.requestStatuses.findUnique({
+      where: { StatusName: 'En attente' }
+    });
+    if (!waitingStatus) {
+      return res.status(500).json({ error: "Le statut « En attente » est introuvable." });
+    }
+
+    const updated = await prisma.serviceRequests.update({
+      where: { RequestId: requestId },
+      data: {
+        StatusId: waitingStatus.StatusId,
+        LastModifiedAt: new Date()
+      },
+      include: {
+        RequestStatuses: true,
+        ServiceTypes: true
+      }
+    });
+
+    res.json({ message: 'Demande restaurée avec succès', request: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: RESTORE A DELETED REQUEST — END === //
+
+
 // ─── List available service types (for the dropdown) ────
 async function getServiceTypes(req, res) {
   try {
@@ -191,4 +240,4 @@ async function getServiceTypes(req, res) {
   }
 }
 
-module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest };
+module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest };

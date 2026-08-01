@@ -86,4 +86,35 @@ export async function updateRequest(requestId, requestData, token) {
   return data;
 }
 
+// === BLOCK: DELETE A REQUEST — START === //
+export async function deleteRequest(requestId, token) {
+  const response = await fetch(`${API_URL}/requests/${requestId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` }
+  });
 
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors de la suppression de la demande');
+  }
+
+  return data;
+}
+// === BLOCK: DELETE A REQUEST — END === //
+// === BLOCK: RESTORE A DELETED REQUEST — START === //
+export async function restoreRequest(requestId, token) {
+  const response = await fetch(`${API_URL}/requests/${requestId}/restore`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors de la restauration de la demande');
+  }
+
+  return data;
+}
+// === BLOCK: RESTORE A DELETED REQUEST — END === //

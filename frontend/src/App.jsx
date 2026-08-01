@@ -13,6 +13,10 @@ function App() {
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [openInEditMode, setOpenInEditMode] = useState(false);
 
+  // === BLOCK: REMEMBER WHICH DASHBOARD VIEW WE CAME FROM — START === //
+  const [returnToDeleted, setReturnToDeleted] = useState(false);
+  // === BLOCK: REMEMBER WHICH DASHBOARD VIEW WE CAME FROM — END === //
+
   function handleLogout() {
     localStorage.removeItem('lexy_token');
     localStorage.removeItem('lexy_user');
@@ -23,16 +27,22 @@ function App() {
     setCurrentPage('dashboard');
   }
 
-  function handleViewRequest(requestId) {
+  function handleViewRequest(requestId, fromDeleted = false) {
     setSelectedRequestId(requestId);
     setOpenInEditMode(false);
+    setReturnToDeleted(fromDeleted);
     setCurrentPage('request-detail');
   }
 
   function handleEditRequest(requestId) {
     setSelectedRequestId(requestId);
     setOpenInEditMode(true);
+    setReturnToDeleted(false);
     setCurrentPage('request-detail');
+  }
+
+  function handleBackToDashboard() {
+    setCurrentPage('dashboard');
   }
 
   if (currentPage === 'dashboard') {
@@ -42,6 +52,7 @@ function App() {
         onNewRequest={() => setCurrentPage('new-request')}
         onViewRequest={handleViewRequest}
         onEditRequest={handleEditRequest}
+        initialShowDeleted={returnToDeleted}
       />
     );
   }
@@ -49,7 +60,7 @@ function App() {
   if (currentPage === 'new-request') {
     return (
       <NewRequestPage
-        onBackToDashboard={() => setCurrentPage('dashboard')}
+        onBackToDashboard={handleBackToDashboard}
         onLogout={handleLogout}
       />
     );
@@ -60,7 +71,7 @@ function App() {
       <RequestDetailPage
         requestId={selectedRequestId}
         startInEditMode={openInEditMode}
-        onBackToDashboard={() => setCurrentPage('dashboard')}
+        onBackToDashboard={handleBackToDashboard}
         onLogout={handleLogout}
       />
     );

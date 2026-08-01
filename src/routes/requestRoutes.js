@@ -9,6 +9,7 @@ router.get('/requests', authMiddleware, requestController.getMyRequests);
 router.get('/requests/:id', authMiddleware, requestController.getRequestById);
 router.put('/requests/:id', authMiddleware, requestController.updateRequest);
 router.delete('/requests/:id', authMiddleware, requestController.deleteRequest);
+router.patch('/requests/:id/restore', authMiddleware, requestController.restoreRequest);
 router.get('/service-types', authMiddleware, requestController.getServiceTypes);
 
 module.exports = router;
