@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { getMyRequests, deleteRequest } from '../services/requestService';
+import { getMyRequests, deleteRequest, getStats } from '../services/requestService';
 import './DashboardPage.css';
 
 function DashboardPage({ onLogout, onNewRequest, onViewRequest, onEditRequest, initialShowDeleted }) {
-const userJson = localStorage.getItem('lexy_user');
+  const userJson = localStorage.getItem('lexy_user');
   const user = userJson ? JSON.parse(userJson) : null;
   const firstName = user?.firstName || 'invité';
   const initial = firstName.charAt(0).toUpperCase();
@@ -12,6 +12,13 @@ const userJson = localStorage.getItem('lexy_user');
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [requestsError, setRequestsError] = useState('');
+
+  // === BLOCK: STATS STATE — START === //
+  const [envoyeeCount, setEnvoyeeCount] = useState(0);
+  const [enAttenteCount, setEnAttenteCount] = useState(0);
+  const [enCoursCount, setEnCoursCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  // === BLOCK: STATS STATE — END === //
 
   // === BLOCK: DELETED-VIEW TOGGLE STATE — START === //
   const [showDeleted, setShowDeleted] = useState(initialShowDeleted || false);
@@ -23,17 +30,24 @@ const userJson = localStorage.getItem('lexy_user');
   // === BLOCK: POPOVER STATE — END === //
 
   useEffect(() => {
-    async function loadRequests() {
+    async function loadData() {
       try {
-        const data = await getMyRequests(token);
-        setRequests(data.requests);
+        const [requestsData, statsData] = await Promise.all([
+          getMyRequests(token),
+          getStats(token)
+        ]);
+        setRequests(requestsData.requests);
+        setEnvoyeeCount(statsData.envoyeeCount);
+        setEnAttenteCount(statsData.enAttenteCount);
+        setEnCoursCount(statsData.enCoursCount);
+        setCompletedCount(statsData.completedCount);
       } catch (err) {
         setRequestsError(err.message);
       } finally {
         setLoadingRequests(false);
       }
     }
-    loadRequests();
+    loadData();
   }, [token]);
 
   // === BLOCK: CLOSE POPOVER ON OUTSIDE CLICK — START === //
@@ -57,7 +71,7 @@ const userJson = localStorage.getItem('lexy_user');
     });
   }
 
-  // === BLOCK: DELETE HANDLER — START === //
+ // === BLOCK: DELETE HANDLER (with confirmation) — START === //
   async function handleDelete(requestId) {
     try {
       const result = await deleteRequest(requestId, token);
@@ -65,6 +79,13 @@ const userJson = localStorage.getItem('lexy_user');
         prev.map((r) => (r.RequestId === requestId ? result.request : r))
       );
       setPopoverRequestId(null);
+
+      // === Refresh stat counts after delete === //
+      const statsData = await getStats(token);
+      setEnvoyeeCount(statsData.envoyeeCount);
+      setEnAttenteCount(statsData.enAttenteCount);
+      setEnCoursCount(statsData.enCoursCount);
+      setCompletedCount(statsData.completedCount);
     } catch (err) {
       alert(err.message);
     }
@@ -136,15 +157,21 @@ const userJson = localStorage.getItem('lexy_user');
             </div>
           </section>
 
+          {/* === BLOCK: STAT CARDS — START === */}
           <section className="stats">
-            <div className="stat-card" style={{ borderTopColor: '#2E75B6' }}>
-              <div className="stat-label">DEMANDES ACTIVES</div>
-              <div className="stat-value">0</div>
-              <div className="stat-sub">en cours de traitement</div>
+            <div className="stat-card" style={{ borderTopColor: '#F59E0B' }}>
+              <div className="stat-label">ENVOYÉES</div>
+              <div className="stat-value">{envoyeeCount}</div>
+              <div className="stat-sub">en attente d'un agent</div>
+            </div>
+            <div className="stat-card" style={{ borderTopColor: '#A855F7' }}>
+              <div className="stat-label">EN ATTENTE</div>
+              <div className="stat-value">{enAttenteCount}</div>
+              <div className="stat-sub">brouillons sauvegardés</div>
             </div>
             <div className="stat-card" style={{ borderTopColor: '#10B981' }}>
-              <div className="stat-label">DEMANDES COMPLÉTÉES</div>
-              <div className="stat-value">0</div>
+              <div className="stat-label">COMPLÉTÉES</div>
+              <div className="stat-value">{completedCount}</div>
               <div className="stat-sub">depuis votre inscription</div>
             </div>
             <div className="stat-card" style={{ borderTopColor: '#A8842F' }}>
@@ -158,6 +185,7 @@ const userJson = localStorage.getItem('lexy_user');
               <div className="stat-sub">grâce à nos négociations</div>
             </div>
           </section>
+          {/* === BLOCK: STAT CARDS — END === */}
 
           <section className="requests-section">
 
@@ -219,20 +247,20 @@ const userJson = localStorage.getItem('lexy_user');
                           ✏️
                         </button>
 
-                       {/* === BLOCK: DELETE POPOVER — START === */}
-<div className="popover-wrapper">
-  <button
-    className="icon-btn icon-btn-delete"
-    onClick={(e) => {
-      e.stopPropagation();
-      setPopoverRequestId((prev) =>
-        prev === request.RequestId ? null : request.RequestId
-      );
-    }}
-    title="Supprimer"
-  >
-    🗑️
-  </button>
+                        {/* === BLOCK: DELETE POPOVER — START === */}
+                        <div className="popover-wrapper">
+                          <button
+                            className="icon-btn icon-btn-delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPopoverRequestId((prev) =>
+                                prev === request.RequestId ? null : request.RequestId
+                              );
+                            }}
+                            title="Supprimer"
+                          >
+                            🗑️
+                          </button>
 
                           {popoverRequestId === request.RequestId && (
                             <div

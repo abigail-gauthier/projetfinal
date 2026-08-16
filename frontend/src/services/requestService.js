@@ -157,3 +157,20 @@ export async function saveRequest(requestData, token) {
   return data;
 }
 // === BLOCK: SAVE REQUEST AS DRAFT — END === //
+
+
+// === BLOCK: GET DASHBOARD STATS — START === //
+export async function getStats(token) {
+  const response = await fetch(`${API_URL}/stats`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors du chargement des statistiques');
+  }
+
+  return data;
+}
+// === BLOCK: GET DASHBOARD STATS — END === //

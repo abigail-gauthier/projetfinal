@@ -4,6 +4,7 @@ const requestController = require('../controllers/requestController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // === BLOCK: SPECIFIC NAMED ROUTES (must come before /:id routes) — START === //
+router.get('/stats', authMiddleware, requestController.getDashboardStats);
 router.post('/requests/save', authMiddleware, requestController.saveRequestAsDraft);
 router.get('/service-types', authMiddleware, requestController.getServiceTypes);
 // === BLOCK: SPECIFIC NAMED ROUTES — END === //

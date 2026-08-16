@@ -66,6 +66,38 @@ async function getMyRequests(req, res) {
   }
 }
 
+// === BLOCK: GET DASHBOARD STATS — START === //
+async function getDashboardStats(req, res) {
+  try {
+    const userId = req.user.userId;
+
+    // StatusIds: 2=Envoyée, 7=En attente, 3=En attente de révision,
+    // 4=En attente d'approbation, 5=En cours, 6=Question posée, 9=Complétée
+    const enCoursIds = [3, 4, 5, 6];
+
+    const [envoyeeCount, enAttenteCount, enCoursCount, completedCount] = await Promise.all([
+      prisma.serviceRequests.count({
+        where: { ClientId: userId, StatusId: 2 }
+      }),
+      prisma.serviceRequests.count({
+        where: { ClientId: userId, StatusId: 7 }
+      }),
+      prisma.serviceRequests.count({
+        where: { ClientId: userId, StatusId: { in: enCoursIds } }
+      }),
+      prisma.serviceRequests.count({
+        where: { ClientId: userId, StatusId: 9 }
+      }),
+    ]);
+
+    res.json({ envoyeeCount, enAttenteCount, enCoursCount, completedCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: GET DASHBOARD STATS — END === //
+
+
 // ─── Get a single request belonging to the logged-in user ─
 async function getRequestById(req, res) {
   try {
@@ -320,4 +352,5 @@ async function getServiceTypes(req, res) {
   }
 }
 
-module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest, submitRequest, saveRequestAsDraft };
+module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest, submitRequest, saveRequestAsDraft, getDashboardStats };
+
