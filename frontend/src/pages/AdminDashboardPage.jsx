@@ -41,34 +41,32 @@ const FILTER_OPTIONS = [
   { label: 'Supprimées', value: 'Supprimée' },
 ];
 
+const REVISION_STATUSES = ['En attente de révision', "En attente d'approbation"];
+
 function AdminDashboardPage({ onLogout, onViewRequest }) {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [updatingId, setUpdatingId] = useState(null);
-const [statusPopover, setStatusPopover] = useState(null); // { requestId, newStatusId, currentName, newName }
-  const [pickerOpenId, setPickerOpenId] = useState(null); // requestId of the open picker
+  const [statusPopover, setStatusPopover] = useState(null);
+  const [pickerOpenId, setPickerOpenId] = useState(null);
+  const [sortOrder, setSortOrder] = useState('newest');
 
-// === BLOCK: LOAD ALL REQUESTS — START === //
   useEffect(() => {
-    const token = localStorage.getItem('lexy_token');
-    fetch('http://localhost:3000/api/admin/requests', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('ADMIN FETCH RESULT:', data);
+    async function loadRequests() {
+      const token = localStorage.getItem('lexy_token');
+      try {
+        const data = await getAllRequests(token);
         setRequests(data.requests || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log('ADMIN FETCH ERROR:', err);
+      } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+    loadRequests();
   }, []);
-  // === BLOCK: LOAD ALL REQUESTS — END === //
 
   function formatDate(value) {
     if (!value) return '';
@@ -77,26 +75,6 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
     });
   }
 
-  // === BLOCK: STATUS UPDATE HANDLER — START === //
-  async function handleStatusChange(e, requestId) {
-    e.stopPropagation();
-    const token = localStorage.getItem('lexy_token');
-    const newStatusId = Number(e.target.value);
-    setUpdatingId(requestId);
-    try {
-      const result = await updateRequestStatus(requestId, newStatusId, token);
-      setRequests((prev) =>
-        prev.map((r) => (r.RequestId === requestId ? result.request : r))
-      );
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setUpdatingId(null);
-    }
-  }
-  // === BLOCK: STATUS UPDATE HANDLER — END === //
-
-  // === BLOCK: STATUS CONFIRM HANDLER — START === //
   async function handleStatusConfirm() {
     if (!statusPopover) return;
     const token = localStorage.getItem('lexy_token');
@@ -113,22 +91,23 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
       setUpdatingId(null);
     }
   }
-  // === BLOCK: STATUS CONFIRM HANDLER — END === //
 
-  // === BLOCK: FILTER LOGIC — START === //
-  const REVISION_STATUSES = ['En attente de révision', "En attente d'approbation"];
-
-  const visibleRequests = requests.filter((r) => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'revision') return REVISION_STATUSES.includes(r.RequestStatuses?.StatusName);
-    return r.RequestStatuses?.StatusName === activeFilter;
-  });
-  // === BLOCK: FILTER LOGIC — END === //
+  const visibleRequests = requests
+    .filter((r) => {
+      if (activeFilter === 'all') return true;
+      if (activeFilter === 'revision') return REVISION_STATUSES.includes(r.RequestStatuses?.StatusName);
+      return r.RequestStatuses?.StatusName === activeFilter;
+    })
+    .sort((a, b) => {
+      if (sortOrder === 'alpha') return a.Title.localeCompare(b.Title, 'fr');
+      if (sortOrder === 'newest') return new Date(b.CreatedAt) - new Date(a.CreatedAt);
+      if (sortOrder === 'oldest') return new Date(a.CreatedAt) - new Date(b.CreatedAt);
+      return 0;
+    });
 
   return (
     <div className="dashboard">
 
-      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-bg"></div>
         <div className="sidebar-content">
@@ -145,7 +124,6 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
         </div>
       </aside>
 
-      {/* MAIN */}
       <div className="main">
         <header className="topbar">
           <div>
@@ -154,19 +132,15 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
           </div>
           <div className="topbar-right">
             <div className="user-chip">
-              <div className="user-avatar"
-                style={{ background: 'linear-gradient(135deg, #EF4444, #DC2626)' }}>A</div>
+              <div className="user-avatar" style={{ background: 'linear-gradient(135deg, #EF4444, #DC2626)' }}>A</div>
               <span>Admin</span>
             </div>
-            <button className="logout-btn" onClick={onLogout}>
-              Se déconnecter
-            </button>
+            <button className="logout-btn" onClick={onLogout}>Se déconnecter</button>
           </div>
         </header>
 
         <main className="content">
 
-          {/* === BLOCK: SUMMARY COUNTS — START === */}
           <div className="admin-counts">
             <div className="admin-count-pill">
               <span className="admin-count-num">{requests.length}</span>
@@ -180,9 +154,9 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
             </div>
             <div className="admin-count-pill" style={{ borderColor: '#3B82F6' }}>
               <span className="admin-count-num" style={{ color: '#1E40AF' }}>
-                {requests.filter(r => r.RequestStatuses?.StatusName === 'En cours').length}
+                {requests.filter(r => REVISION_STATUSES.includes(r.RequestStatuses?.StatusName)).length}
               </span>
-              <span className="admin-count-label">En cours</span>
+              <span className="admin-count-label">En révision</span>
             </div>
             <div className="admin-count-pill" style={{ borderColor: '#22C55E' }}>
               <span className="admin-count-num" style={{ color: '#166534' }}>
@@ -191,9 +165,19 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
               <span className="admin-count-label">Complétées</span>
             </div>
           </div>
-          {/* === BLOCK: SUMMARY COUNTS — END === */}
 
-          {/* === BLOCK: FILTER CHIPS — START === */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+            <select
+              className="sort-select"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="newest">Plus récent</option>
+              <option value="oldest">Plus ancien</option>
+              <option value="alpha">A → Z</option>
+            </select>
+          </div>
+
           <div className="filter-chips-row" style={{ marginBottom: '20px' }}>
             {FILTER_OPTIONS.map((f) => (
               <button
@@ -205,7 +189,6 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
               </button>
             ))}
           </div>
-          {/* === BLOCK: FILTER CHIPS — END === */}
 
           {error && <div className="requests-error">{error}</div>}
           {loading && <p className="requests-empty">Chargement des demandes...</p>}
@@ -214,12 +197,10 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
             <p className="requests-empty">Aucune demande pour ce filtre.</p>
           )}
 
-          {/* === BLOCK: ADMIN REQUEST LIST — START === */}
           {!loading && !error && visibleRequests.length > 0 && (
             <div className="admin-requests-list">
               {visibleRequests.map((request) => {
-                const statusStyle = STATUS_COLORS[request.RequestStatuses?.StatusName]
-                  || { bg: '#F3F4F6', color: '#6B7280' };
+                const statusStyle = STATUS_COLORS[request.RequestStatuses?.StatusName] || { bg: '#F3F4F6', color: '#6B7280' };
                 return (
                   <div
                     className="admin-request-card"
@@ -227,7 +208,6 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
                     onClick={() => onViewRequest(request.RequestId)}
                     style={{ cursor: 'pointer' }}
                   >
-                    {/* Row 1: Icon + Title + Code + Client + Status */}
                     <div className="admin-card-row1">
                       <div className="service-icon-sm">
                         {SERVICE_ICONS[request.ServiceTypes?.TypeName] || '✨'}
@@ -246,6 +226,7 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
                           </span>
                         </div>
                       </div>
+
                       <div className="status-pill-wrapper" onClick={(e) => e.stopPropagation()}>
                         <span
                           className="admin-status-pill"
@@ -281,15 +262,12 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
                         )}
                       </div>
                     </div>
-{/* Row 2 removed — status pill is now the trigger */}
-                    
                   </div>
                 );
               })}
             </div>
           )}
-          {/* === BLOCK: ADMIN REQUEST LIST — END === */}
-{/* === BLOCK: STATUS CONFIRM MODAL — START === */}
+
           {statusPopover && (
             <div className="status-modal-overlay" onClick={() => setStatusPopover(null)}>
               <div className="status-modal" onClick={(e) => e.stopPropagation()}>
@@ -308,7 +286,7 @@ const [statusPopover, setStatusPopover] = useState(null); // { requestId, newSta
               </div>
             </div>
           )}
-          {/* === BLOCK: STATUS CONFIRM MODAL — END === */}
+
         </main>
       </div>
     </div>

@@ -6,8 +6,12 @@ const STATUS_FILTERS = [
   { label: 'Toutes', value: 'all' },
   { label: 'Envoyées', value: 'Envoyée' },
   { label: 'En attente', value: 'En attente' },
+  { label: 'En révision', value: 'revision' },
+  { label: 'Question posée', value: 'Question posée' },
   { label: 'Complétées', value: 'Complétée' },
 ];
+
+const REVISION_STATUSES = ['En attente de révision', "En attente d'approbation"];
 
 function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest }) {
   const userJson = localStorage.getItem('lexy_user');
@@ -21,19 +25,10 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-
-  // === BLOCK: DELETED TOGGLE STATE — START === //
   const [showDeleted, setShowDeleted] = useState(false);
-  // === BLOCK: DELETED TOGGLE STATE — END === //
-
-  // === BLOCK: SORT STATE — START === //
   const [sortOrder, setSortOrder] = useState('newest');
-  // === BLOCK: SORT STATE — END === //
-
-  // === BLOCK: POPOVER STATE — START === //
   const [popoverRequestId, setPopoverRequestId] = useState(null);
   const popoverRef = useRef(null);
-  // === BLOCK: POPOVER STATE — END === //
 
   useEffect(() => {
     async function loadRequests() {
@@ -49,7 +44,6 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
     loadRequests();
   }, [token]);
 
-  // === BLOCK: CLOSE POPOVER ON OUTSIDE CLICK — START === //
   useEffect(() => {
     function handleClickOutside(e) {
       if (popoverRef.current && !popoverRef.current.contains(e.target)) {
@@ -59,7 +53,6 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  // === BLOCK: CLOSE POPOVER ON OUTSIDE CLICK — END === //
 
   function formatDate(value) {
     if (!value) return '';
@@ -68,7 +61,6 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
     });
   }
 
-  // === BLOCK: DELETE HANDLER — START === //
   async function handleDelete(requestId) {
     try {
       const result = await deleteRequest(requestId, token);
@@ -80,35 +72,24 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
       alert(err.message);
     }
   }
-  // === BLOCK: DELETE HANDLER — END === //
 
- // === BLOCK: FILTER + SORT LOGIC — START === //
   const visibleRequests = requests
     .filter((r) => {
       const isDeleted = r.RequestStatuses?.StatusName === 'Supprimée';
       if (showDeleted) return isDeleted;
       if (isDeleted) return false;
       if (activeFilter === 'all') return true;
+      if (activeFilter === 'revision') return REVISION_STATUSES.includes(r.RequestStatuses?.StatusName);
       return r.RequestStatuses?.StatusName === activeFilter;
     })
-   .sort((a, b) => {
-      if (sortOrder === 'alpha') {
-        return a.Title.localeCompare(b.Title, 'fr');
-      }
-      // For deleted requests, sort by LastModifiedAt (when they were deleted)
-      // For active requests, sort by CreatedAt
-      const dateA = showDeleted
-        ? new Date(a.LastModifiedAt || a.CreatedAt)
-        : new Date(a.CreatedAt);
-      const dateB = showDeleted
-        ? new Date(b.LastModifiedAt || b.CreatedAt)
-        : new Date(b.CreatedAt);
-
+    .sort((a, b) => {
+      if (sortOrder === 'alpha') return a.Title.localeCompare(b.Title, 'fr');
+      const dateA = showDeleted ? new Date(a.LastModifiedAt || a.CreatedAt) : new Date(a.CreatedAt);
+      const dateB = showDeleted ? new Date(b.LastModifiedAt || b.CreatedAt) : new Date(b.CreatedAt);
       if (sortOrder === 'newest') return dateB - dateA;
       if (sortOrder === 'oldest') return dateA - dateB;
       return 0;
     });
-  // === BLOCK: FILTER + SORT LOGIC — END === //
 
   return (
     <div className="dashboard">
@@ -148,7 +129,6 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
 
         <main className="content">
 
-          {/* === BLOCK: HEADING ROW + TOGGLE — START === */}
           <div className="requests-heading-row">
             <h2 className="requests-heading">
               {showDeleted ? 'Demandes supprimées' : 'Mes demandes'}
@@ -165,18 +145,13 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
               </select>
               <button
                 className="toggle-deleted-link"
-                onClick={() => {
-                  setShowDeleted((prev) => !prev);
-                  setActiveFilter('all');
-                }}
+                onClick={() => { setShowDeleted((prev) => !prev); setActiveFilter('all'); }}
               >
                 {showDeleted ? '← Voir les demandes actives' : 'Voir les demandes supprimées'}
               </button>
             </div>
           </div>
-          {/* === BLOCK: HEADING ROW + TOGGLE — END === */}
 
-          {/* === BLOCK: STATUS FILTER CHIPS — START === */}
           {!showDeleted && (
             <div className="filter-chips-row">
               {STATUS_FILTERS.map((f) => (
@@ -190,7 +165,6 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
               ))}
             </div>
           )}
-          {/* === BLOCK: STATUS FILTER CHIPS — END === */}
 
           {error && <div className="requests-error">{error}</div>}
           {loading && <p className="requests-empty">Chargement de vos demandes...</p>}
@@ -199,7 +173,6 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
             <p className="requests-empty">Aucune demande pour ce filtre.</p>
           )}
 
-          {/* === BLOCK: REQUESTS LIST — START === */}
           {!loading && !error && visibleRequests.length > 0 && (
             <div className="requests-list">
               {visibleRequests.map((request) => (
@@ -216,7 +189,7 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
                         {request.RequestStatuses?.StatusName}
                       </span>
                     </div>
-<div className="request-item-date">
+                    <div className="request-item-date">
                       Créée le {formatDate(request.CreatedAt)}
                       {request.LastModifiedAt && (
                         <span style={{ marginLeft: '12px', color: '#9CA3AF' }}>
@@ -226,65 +199,55 @@ function MesDemandesPage({ onNavigate, onLogout, onViewRequest, onEditRequest })
                     </div>
                   </div>
 
-                 {!showDeleted && (
-                  <div className="request-item-actions">
-                    <button
-                      className="icon-btn"
-                      onClick={(e) => { e.stopPropagation(); onEditRequest(request.RequestId); }}
-                      title="Modifier"
-                    >
-                      ✏️
-                    </button>
-
-                    {/* === BLOCK: DELETE POPOVER — START === */}
-                    <div className="popover-wrapper">
+                  {!showDeleted && (
+                    <div className="request-item-actions">
                       <button
-                        className="icon-btn icon-btn-delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPopoverRequestId((prev) =>
-                            prev === request.RequestId ? null : request.RequestId
-                          );
-                        }}
-                        title="Supprimer"
+                        className="icon-btn"
+                        onClick={(e) => { e.stopPropagation(); onEditRequest(request.RequestId); }}
+                        title="Modifier"
                       >
-                        🗑️
+                        ✏️
                       </button>
 
-                      {popoverRequestId === request.RequestId && (
-                        <div
-                          className="delete-popover"
-                          ref={popoverRef}
-                          onClick={(e) => e.stopPropagation()}
+                      <div className="popover-wrapper">
+                        <button
+                          className="icon-btn icon-btn-delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPopoverRequestId((prev) =>
+                              prev === request.RequestId ? null : request.RequestId
+                            );
+                          }}
+                          title="Supprimer"
                         >
-                          <div className="popover-arrow" />
-                          <p className="popover-message">Confirmer la suppression</p>
-                          <div className="popover-actions">
-                            <button
-                              className="popover-cancel"
-                              onClick={() => setPopoverRequestId(null)}
-                            >
-                              Annuler
-                            </button>
-                            <button
-                              className="popover-confirm"
-                              onClick={() => handleDelete(request.RequestId)}
-                            >
-                              Supprimer
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    {/* === BLOCK: DELETE POPOVER — END === */}
-                  </div>
-                  )}
+                          🗑️
+                        </button>
 
+                        {popoverRequestId === request.RequestId && (
+                          <div
+                            className="delete-popover"
+                            ref={popoverRef}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="popover-arrow" />
+                            <p className="popover-message">Confirmer la suppression</p>
+                            <div className="popover-actions">
+                              <button className="popover-cancel" onClick={() => setPopoverRequestId(null)}>
+                                Annuler
+                              </button>
+                              <button className="popover-confirm" onClick={() => handleDelete(request.RequestId)}>
+                                Supprimer
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
-          {/* === BLOCK: REQUESTS LIST — END === */}
 
         </main>
       </div>
