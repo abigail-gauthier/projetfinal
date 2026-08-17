@@ -1,0 +1,30 @@
+/* === BLOCK: PLACEHOLDER PAGE — START === */
+.placeholder-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  gap: 16px;
+}
+
+.placeholder-icon {
+  font-size: 64px;
+  margin-bottom: 8px;
+}
+
+.placeholder-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1F2937;
+}
+
+.placeholder-sub {
+  font-size: 15px;
+  font-weight: 500;
+  color: #9CA3AF;
+  max-width: 460px;
+  line-height: 1.6;
+}
+/* === BLOCK: PLACEHOLDER PAGE — END === */

@@ -174,3 +174,88 @@ export async function getStats(token) {
   return data;
 }
 // === BLOCK: GET DASHBOARD STATS — END === //
+
+// === BLOCK: ADMIN SERVICE FUNCTIONS — START === //
+export async function getAllRequests(token) {
+  const response = await fetch(`${API_URL}/admin/requests`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors du chargement des demandes');
+  }
+
+  return data;
+}
+
+export async function updateRequestStatus(requestId, statusId, token) {
+  const response = await fetch(`${API_URL}/admin/requests/${requestId}/status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ StatusId: statusId })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors de la mise à jour du statut');
+  }
+
+  return data;
+}
+// === BLOCK: ADMIN SERVICE FUNCTIONS — END === //
+
+// === BLOCK: ADMIN — GET SINGLE REQUEST — START === //
+export async function getRequestByIdAdmin(requestId, token) {
+  const response = await fetch(`${API_URL}/admin/requests/${requestId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors du chargement de la demande');
+  }
+
+  return data;
+}
+// === BLOCK: ADMIN — GET SINGLE REQUEST — END === //
+
+// === BLOCK: DELIVERABLE SERVICE FUNCTIONS — START === //
+export async function createDeliverable(requestId, formData, token) {
+  const response = await fetch(`${API_URL}/admin/requests/${requestId}/deliverable`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: formData // FormData handles its own Content-Type
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors de la création du livrable');
+  }
+
+  return data;
+}
+
+export async function getDeliverables(requestId, token) {
+  const response = await fetch(`${API_URL}/deliverables/${requestId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Erreur lors du chargement des livrables');
+  }
+
+  return data;
+}
+// === BLOCK: DELIVERABLE SERVICE FUNCTIONS — END === //

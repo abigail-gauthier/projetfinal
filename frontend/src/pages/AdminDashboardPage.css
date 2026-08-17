@@ -1,0 +1,212 @@
+/* === BLOCK: ADMIN COUNTS — START === */
+.admin-counts {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.admin-count-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 16px 28px;
+  min-width: 100px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.admin-count-num {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1F2937;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.admin-count-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9CA3AF;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+/* === BLOCK: ADMIN COUNTS — END === */
+
+
+/* === BLOCK: ADMIN REQUEST LIST — START === */
+.admin-requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-request-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  border-left: 5px solid #1A2B4A;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 20px 24px;
+}
+/* === BLOCK: ADMIN REQUEST LIST — END === */
+
+
+/* === BLOCK: ADMIN CARD ROW 1 — START === */
+.admin-card-row1 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.service-icon-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #F4F5F7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.admin-card-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1F2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.admin-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-card-code {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9CA3AF;
+  letter-spacing: 0.4px;
+}
+
+.admin-card-sep {
+  color: #D1D5DB;
+  font-size: 13px;
+}
+
+.admin-card-client {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #4B5563;
+}
+
+.admin-card-date {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9CA3AF;
+}
+
+.admin-status-pill {
+  flex-shrink: 0;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+/* === BLOCK: ADMIN CARD ROW 1 — END === */
+
+
+/* === BLOCK: ADMIN CARD ROW 2 (status change) — START === */
+.admin-card-row2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #F4F5F7;
+}
+
+.admin-status-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #9CA3AF;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.admin-status-select {
+  padding: 8px 14px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #1F2937;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.admin-status-select:focus {
+  outline: none;
+  border-color: #1A2B4A;
+}
+
+.admin-status-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-updating {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9CA3AF;
+  font-style: italic;
+}
+/* === BLOCK: ADMIN CARD ROW 2 — END === */
+
+/* === BLOCK: STATUS PILL PICKER — START === */
+.status-pill-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.status-picker-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+  z-index: 150;
+  min-width: 220px;
+  overflow: hidden;
+}
+
+.status-picker-option {
+  padding: 11px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1F2937;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.status-picker-option:hover {
+  background: #F4F5F7;
+}
+/* === BLOCK: STATUS PILL PICKER — END === */

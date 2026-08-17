@@ -1,0 +1,196 @@
+/* === BLOCK: FILTER CHIPS — START === */
+.filter-chips-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.filter-chip {
+  padding: 9px 20px;
+  border-radius: 20px;
+  border: 1.5px solid #D1D5DB;
+  background: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #4B5563;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-chip:hover {
+  border-color: #1A2B4A;
+  color: #1A2B4A;
+}
+
+.filter-chip.active {
+  background: #1A2B4A;
+  border-color: #1A2B4A;
+  color: #FFFFFF;
+}
+/* === BLOCK: FILTER CHIPS — END === */
+
+/* === BLOCK: POPOVER (reused from dashboard) — START === */
+.popover-wrapper {
+  position: relative;
+}
+
+.delete-popover {
+  position: absolute;
+  bottom: calc(100% + 16px);
+  right: 0;
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  padding: 20px 22px;
+  width: 260px;
+  z-index: 100;
+  border: 1px solid #E5E7EB;
+}
+
+.popover-arrow {
+  position: absolute;
+  bottom: -8px;
+  right: 14px;
+  width: 16px;
+  height: 16px;
+  background: #FFFFFF;
+  border-right: 1px solid #E5E7EB;
+  border-bottom: 1px solid #E5E7EB;
+  transform: rotate(45deg);
+}
+
+.popover-message {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.popover-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.popover-cancel {
+  padding: 10px 18px;
+  background: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  color: #1F2937;
+}
+
+.popover-cancel:hover {
+  border-color: #1A2B4A;
+}
+
+.popover-confirm {
+  padding: 10px 18px;
+  background: #EF4444;
+  border: none;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  color: #FFFFFF;
+}
+
+.popover-confirm:hover {
+  background: #DC2626;
+}
+/* === BLOCK: POPOVER — END === */
+
+/* === BLOCK: HEADING RIGHT + SORT SELECT — START === */
+.heading-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sort-select {
+  padding: 7px 12px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #4B5563;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #1A2B4A;
+}
+/* === BLOCK: HEADING RIGHT + SORT SELECT — END === */
+
+/* === BLOCK: STATUS CONFIRM MODAL — START === */
+.status-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.status-modal {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 28px 32px;
+  width: 380px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.status-modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1F2937;
+  margin-bottom: 12px;
+}
+
+.status-modal-body {
+  font-size: 14px;
+  color: #4B5563;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.status-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.status-modal-confirm {
+  padding: 10px 22px;
+  background: #1A2B4A;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.status-modal-confirm:hover {
+  background: #2E75B6;
+}
+
+.status-pill-wrapper {
+  position: relative;
+}
+/* === BLOCK: STATUS CONFIRM MODAL — END === */

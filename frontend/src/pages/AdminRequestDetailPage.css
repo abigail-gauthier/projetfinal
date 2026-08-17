@@ -1,0 +1,230 @@
+/* === BLOCK: CLIENT INFO CARD — START === */
+.admin-client-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 5px solid #2E75B6;
+}
+
+.admin-client-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: white;
+  flex-shrink: 0;
+}
+
+.admin-client-info {
+  flex: 1;
+}
+
+.admin-client-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1F2937;
+  margin-bottom: 4px;
+}
+
+.admin-client-email {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B7280;
+}
+
+.admin-client-phone {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.admin-view-profile-btn {
+  padding: 10px 20px;
+  background: #1A2B4A;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.admin-view-profile-btn:hover {
+  background: #2E75B6;
+}
+/* === BLOCK: CLIENT INFO CARD — END === */
+
+
+/* === BLOCK: ADMIN STATUS CHANGE SECTION — START === */
+.admin-status-change-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.admin-status-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+/* === BLOCK: ADMIN STATUS CHANGE SECTION — END === */
+
+/* === BLOCK: DELIVERABLE UPLOAD SECTION — START === */
+.deliv-upload-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 5px solid #22C55E;
+}
+
+.deliv-list-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 5px solid #C9A24B;
+}
+
+.deliv-section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1F2937;
+  margin-bottom: 20px;
+}
+
+.deliv-form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.deliv-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: #1F2937;
+  background: #F4F5F7;
+}
+
+.deliv-input:focus {
+  outline: none;
+  border-color: #22C55E;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+}
+
+.deliv-file-input {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 13px;
+  font-family: inherit;
+  color: #4B5563;
+}
+
+.deliv-success {
+  background: #DCFCE7;
+  border: 1px solid #BBF7D0;
+  color: #166534;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.deliv-item {
+  border-top: 1px solid #F4F5F7;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.deliv-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.deliv-item-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1F2937;
+}
+
+.deliv-download-btn {
+  padding: 7px 14px;
+  background: #1A2B4A;
+  color: white;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.deliv-download-btn:hover {
+  background: #2E75B6;
+}
+
+.deliv-item-note {
+  font-size: 13.5px;
+  color: #4B5563;
+  margin-bottom: 6px;
+  font-style: italic;
+}
+
+.deliv-item-meta {
+  font-size: 12px;
+  color: #9CA3AF;
+  margin-bottom: 12px;
+}
+
+.deliv-preview {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #F4F5F7;
+}
+
+.deliv-preview-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  display: block;
+}
+
+.deliv-preview-pdf {
+  width: 100%;
+  height: 500px;
+  border: none;
+  display: block;
+}
+
+.deliv-preview-other {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  font-size: 14px;
+  color: #4B5563;
+  font-weight: 600;
+}
+/* === BLOCK: DELIVERABLE UPLOAD SECTION — END === */

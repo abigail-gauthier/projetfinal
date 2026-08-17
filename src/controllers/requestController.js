@@ -97,6 +97,103 @@ async function getDashboardStats(req, res) {
 }
 // === BLOCK: GET DASHBOARD STATS — END === //
 
+// === BLOCK: ADMIN — GET ALL REQUESTS — START === //
+async function getAllRequests(req, res) {
+  try {
+    const requests = await prisma.serviceRequests.findMany({
+      include: {
+        RequestStatuses: true,
+        ServiceTypes: true,
+        Users: {
+          select: {
+            FirstName: true,
+            LastName: true,
+            Email: true
+          }
+        }
+      },
+      orderBy: { CreatedAt: 'desc' }
+    });
+
+    res.json({ message: 'Demandes récupérées avec succès', requests });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: ADMIN — GET ALL REQUESTS — END === //
+
+
+// === BLOCK: ADMIN — UPDATE REQUEST STATUS — START === //
+async function updateRequestStatus(req, res) {
+  try {
+    const requestId = Number(req.params.id);
+    const { StatusId } = req.body;
+
+    if (!StatusId) {
+      return res.status(400).json({ error: 'StatusId est obligatoire.' });
+    }
+
+    const updated = await prisma.serviceRequests.update({
+      where: { RequestId: requestId },
+      data: {
+        StatusId: Number(StatusId),
+        LastModifiedAt: new Date()
+      },
+      include: {
+        RequestStatuses: true,
+        ServiceTypes: true,
+        Users: {
+          select: {
+            FirstName: true,
+            LastName: true,
+            Email: true
+          }
+        }
+      }
+    });
+
+    res.json({ message: 'Statut mis à jour avec succès', request: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: ADMIN — UPDATE REQUEST STATUS — END === //
+
+
+// === BLOCK: ADMIN — GET SINGLE REQUEST — START === //
+async function getRequestByIdAdmin(req, res) {
+  try {
+    const requestId = Number(req.params.id);
+
+    const request = await prisma.serviceRequests.findUnique({
+      where: { RequestId: requestId },
+      include: {
+        RequestStatuses: true,
+        ServiceTypes: true,
+        Users: {
+          select: {
+            UserId: true,
+            FirstName: true,
+            LastName: true,
+            Email: true,
+            Phone: true,
+            CreatedAt: true
+          }
+        }
+      }
+    });
+
+    if (!request) {
+      return res.status(404).json({ error: 'Demande introuvable.' });
+    }
+
+    res.json({ message: 'Demande récupérée avec succès', request });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: ADMIN — GET SINGLE REQUEST — END === //
+
 
 // ─── Get a single request belonging to the logged-in user ─
 async function getRequestById(req, res) {
@@ -352,5 +449,57 @@ async function getServiceTypes(req, res) {
   }
 }
 
-module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest, submitRequest, saveRequestAsDraft, getDashboardStats };
+// === BLOCK: ADMIN — CREATE DELIVERABLE — START === //
+async function createDeliverable(req, res) {
+  try {
+    const requestId = Number(req.params.id);
+    const { title, note } = req.body;
 
+    if (!req.file) {
+      return res.status(400).json({ error: 'Un fichier est obligatoire.' });
+    }
+
+    if (!title) {
+      return res.status(400).json({ error: 'Le titre est obligatoire.' });
+    }
+
+    const deliverable = await prisma.deliverables.create({
+      data: {
+        RequestId: requestId,
+        Title: title,
+        Note: note || null,
+        FileName: req.file.filename,
+        OriginalName: req.file.originalname,
+        MimeType: req.file.mimetype,
+      }
+    });
+
+    res.status(201).json({ message: 'Livrable créé avec succès', deliverable });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: ADMIN — CREATE DELIVERABLE — END === //
+
+// === BLOCK: GET DELIVERABLES FOR A REQUEST — START === //
+async function getDeliverables(req, res) {
+  try {
+    const requestId = Number(req.params.requestId);
+
+    if (!requestId || isNaN(requestId)) {
+      return res.status(400).json({ error: 'RequestId invalide.' });
+    }
+
+    const deliverables = await prisma.deliverables.findMany({
+      where: { RequestId: requestId },
+      orderBy: { CreatedAt: 'desc' }
+    });
+
+    res.json({ deliverables });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// === BLOCK: GET DELIVERABLES FOR A REQUEST — END === //
+
+module.exports = { createRequest, getMyRequests, getServiceTypes, getRequestById, updateRequest, deleteRequest, restoreRequest, submitRequest, saveRequestAsDraft, getDashboardStats, getAllRequests, updateRequestStatus, getRequestByIdAdmin, createDeliverable, getDeliverables };

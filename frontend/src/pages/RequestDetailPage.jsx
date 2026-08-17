@@ -306,7 +306,7 @@ function RequestDetailPage({ requestId, startInEditMode, onBackToDashboard, onLo
         <main className="content">
 
           <button className="back-link" onClick={onBackToDashboard}>
-            ← Retour au tableau de bord
+            ← Retour
           </button>
 
           {loading && <p className="requests-empty">Chargement de la demande...</p>}

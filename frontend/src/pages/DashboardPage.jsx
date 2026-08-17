@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getMyRequests, deleteRequest, getStats } from '../services/requestService';
 import './DashboardPage.css';
 
-function DashboardPage({ onLogout, onNewRequest, onViewRequest, onEditRequest, initialShowDeleted }) {
+function DashboardPage({ onLogout, onNewRequest, onViewRequest, onEditRequest, initialShowDeleted, onNavigate }) {
   const userJson = localStorage.getItem('lexy_user');
   const user = userJson ? JSON.parse(userJson) : null;
   const firstName = user?.firstName || 'invité';
@@ -92,11 +92,13 @@ function DashboardPage({ onLogout, onNewRequest, onViewRequest, onEditRequest, i
   }
   // === BLOCK: DELETE HANDLER — END === //
 
-  // === BLOCK: FILTER ACTIVE VS DELETED REQUESTS — START === //
-  const visibleRequests = requests.filter((r) => {
-    const isDeleted = r.RequestStatuses?.StatusName === 'Supprimée';
-    return showDeleted ? isDeleted : !isDeleted;
-  });
+// === BLOCK: FILTER ACTIVE VS DELETED REQUESTS — START === //
+  const visibleRequests = requests
+    .filter((r) => {
+      const isDeleted = r.RequestStatuses?.StatusName === 'Supprimée';
+      return showDeleted ? isDeleted : !isDeleted;
+    })
+    .slice(0, 3);
   // === BLOCK: FILTER ACTIVE VS DELETED REQUESTS — END === //
 
   return (
@@ -115,11 +117,8 @@ function DashboardPage({ onLogout, onNewRequest, onViewRequest, onEditRequest, i
           </div>
           <nav className="sidebar-nav">
             <a href="#" className="nav-item active">Tableau de bord</a>
-            <a href="#" className="nav-item">Mes demandes</a>
-            <a href="#" className="nav-item">Livrables</a>
-            <a href="#" className="nav-item">Messages</a>
-            <a href="#" className="nav-item">Contrats et paiements</a>
-            <a href="#" className="nav-item">Informations utiles</a>
+            <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); onNavigate('mes-demandes'); }}>Mes demandes</a>
+            <a href="#" className="nav-item" onClick={(e) => { e.preventDefault(); onNavigate('livrables'); }}>Livrables</a>
           </nav>
         </div>
       </aside>
@@ -233,7 +232,14 @@ function DashboardPage({ onLogout, onNewRequest, onViewRequest, onEditRequest, i
                           {request.RequestStatuses?.StatusName}
                         </span>
                       </div>
-                      <div className="request-item-date">{formatDate(request.CreatedAt)}</div>
+<div className="request-item-date">
+                        Créée le {formatDate(request.CreatedAt)}
+                        {request.LastModifiedAt && (
+                          <span style={{ marginLeft: '12px', color: '#9CA3AF' }}>
+                            · Modifiée le {formatDate(request.LastModifiedAt)}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* === BLOCK: ROW ACTIONS (edit + delete, hidden for deleted items) — START === */}

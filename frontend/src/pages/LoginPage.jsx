@@ -16,13 +16,12 @@ function LoginPage({ onSwitchToRegister, onLoginSuccess }) {
     try {
       const data = await loginUser(email, password);
 
-      // Store the token in localStorage
+     // Store the token in localStorage
       localStorage.setItem('lexy_token', data.token);
       localStorage.setItem('lexy_user', JSON.stringify(data.user));
 
-      // For now, show success in the console
-     // Redirect to the dashboard
-      onLoginSuccess();
+      // Pass roleId so App.jsx knows where to redirect
+      onLoginSuccess(data.user.roleId);
     } catch (err) {
       setError(err.message);
     } finally {
